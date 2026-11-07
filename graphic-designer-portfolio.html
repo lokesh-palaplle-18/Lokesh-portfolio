@@ -1,0 +1,1300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lokesh — Graphic Designer & Agentic Workloads</title>
+
+  <!-- Syne + Manrope — ui-ux-pro-max typography row 18: Fashion Forward -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Three.js via importmap — pinned per threejs.csv -->
+  <script type="importmap">
+  { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js" } }
+  </script>
+
+  <style>
+    /* ── TOKENS (ui-ux-pro-max Portfolio/Personal + orange accent) ── */
+    :root {
+      --bg:        #09090b;
+      --surface:   #111113;
+      --card:      #18181b;
+      --border:    rgba(255,255,255,0.08);
+      --text:      #fafafa;
+      --muted:     #71717a;
+      --accent:    #f97316;       /* single accent — warm orange */
+      --accent-dim:rgba(249,115,22,0.15);
+      --accent-glow:rgba(249,115,22,0.4);
+      --font-head: 'Syne', sans-serif;
+      --font-body: 'Manrope', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── scrollbar ── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
+
+    /* ── CURSOR ── */
+    .cursor {
+      position: fixed; width: 10px; height: 10px;
+      background: var(--accent); border-radius: 50%;
+      pointer-events: none; z-index: 9999;
+      transform: translate(-50%,-50%);
+      transition: transform .1s, width .25s, height .25s, opacity .25s;
+      mix-blend-mode: difference;
+    }
+    .cursor-ring {
+      position: fixed; width: 36px; height: 36px;
+      border: 1px solid var(--accent); border-radius: 50%;
+      pointer-events: none; z-index: 9998;
+      transform: translate(-50%,-50%);
+      transition: transform .18s ease, width .25s, height .25s, opacity .25s;
+      opacity: 0.5;
+    }
+    body:hover .cursor { opacity: 1; }
+
+    /* ── CANVAS ── */
+    #hero-canvas {
+      position: absolute; inset: 0;
+      z-index: 0; pointer-events: none;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.4rem 3rem;
+      transition: background .4s, backdrop-filter .4s;
+    }
+    nav.scrolled {
+      background: rgba(9,9,11,.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-family: var(--font-head);
+      font-weight: 800;
+      font-size: 1.1rem;
+      letter-spacing: -.02em;
+      color: var(--text);
+      text-decoration: none;
+    }
+    .nav-logo span { color: var(--accent); }
+    .nav-links {
+      display: flex; gap: 2.5rem; list-style: none;
+    }
+    .nav-links a {
+      font-family: var(--font-body);
+      font-size: .82rem;
+      font-weight: 500;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta {
+      font-family: var(--font-body);
+      font-size: .82rem;
+      font-weight: 600;
+      padding: .55rem 1.4rem;
+      border-radius: 999px;
+      background: var(--accent);
+      color: #000;
+      text-decoration: none;
+      transition: box-shadow .25s, transform .2s;
+    }
+    .nav-cta:hover {
+      box-shadow: 0 0 28px var(--accent-glow);
+      transform: translateY(-1px);
+    }
+    @media (max-width: 768px) {
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { display: none; }
+    }
+
+    /* ── SECTIONS ── */
+    section { position: relative; }
+
+    /* ── HERO ── */
+    #hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center;
+      padding: 8rem 2rem 4rem;
+      overflow: hidden;
+    }
+
+    .hero-eyebrow {
+      font-family: var(--font-body);
+      font-size: .75rem;
+      font-weight: 600;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1.8rem;
+      position: relative; z-index: 1;
+      opacity: 0; animation: fadeUp .8s .2s ease forwards;
+    }
+
+    .hero-name {
+      font-family: var(--font-head);
+      font-weight: 800;
+      font-size: clamp(3.5rem, 10vw, 8.5rem);
+      line-height: .95;
+      letter-spacing: -.04em;
+      color: var(--text);
+      position: relative; z-index: 1;
+      opacity: 0; animation: fadeUp .9s .35s ease forwards;
+      margin-bottom: .6rem;
+    }
+    .hero-name .line2 {
+      display: block;
+      -webkit-text-stroke: 1.5px var(--text);
+      color: transparent;
+    }
+
+    .hero-role {
+      font-family: var(--font-body);
+      font-size: clamp(1rem, 2.5vw, 1.3rem);
+      font-weight: 300;
+      color: var(--muted);
+      margin-bottom: 2.5rem;
+      position: relative; z-index: 1;
+      opacity: 0; animation: fadeUp .9s .5s ease forwards;
+      letter-spacing: .02em;
+    }
+    .hero-role span { color: var(--text); font-weight: 500; }
+
+    .hero-btns {
+      display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;
+      position: relative; z-index: 1;
+      opacity: 0; animation: fadeUp .9s .65s ease forwards;
+      margin-bottom: 4rem;
+    }
+    .btn {
+      font-family: var(--font-body);
+      font-size: .88rem;
+      font-weight: 600;
+      padding: .8rem 2rem;
+      border-radius: 999px;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      transition: transform .2s, box-shadow .25s;
+    }
+    .btn:hover { transform: translateY(-2px); }
+    .btn-accent {
+      background: var(--accent); color: #000;
+    }
+    .btn-accent:hover { box-shadow: 0 0 32px var(--accent-glow); }
+    .btn-outline {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-outline:hover { border-color: rgba(255,255,255,.2); }
+
+    .hero-scroll-hint {
+      position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: .5rem;
+      z-index: 1; opacity: 0; animation: fadeUp 1s 1s ease forwards;
+    }
+    .scroll-line {
+      width: 1px; height: 48px;
+      background: linear-gradient(to bottom, var(--accent), transparent);
+      animation: scrollPulse 2s ease-in-out infinite;
+    }
+    .scroll-label {
+      font-size: .68rem; letter-spacing: .18em; text-transform: uppercase;
+      color: var(--muted); writing-mode: vertical-lr; margin-top: .3rem;
+    }
+
+    /* ── MARQUEE ── */
+    .marquee-wrap {
+      overflow: hidden;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 0;
+      background: var(--surface);
+    }
+    .marquee-track {
+      display: flex; width: max-content;
+      animation: marquee 22s linear infinite;
+    }
+    .marquee-track span {
+      font-family: var(--font-head);
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 0 2.5rem;
+      white-space: nowrap;
+    }
+    .marquee-track span.accent { color: var(--accent); }
+
+    /* ── ABOUT ── */
+    #about {
+      padding: 7rem 3rem;
+      max-width: 1200px; margin: 0 auto;
+    }
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6rem; align-items: center;
+    }
+    @media (max-width: 900px) {
+      .about-grid { grid-template-columns: 1fr; gap: 3rem; }
+    }
+
+    .section-label {
+      font-family: var(--font-body);
+      font-size: .72rem;
+      font-weight: 600;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1.2rem;
+    }
+    .section-heading {
+      font-family: var(--font-head);
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -.03em;
+      color: var(--text);
+      margin-bottom: 1.5rem;
+    }
+    .section-body {
+      font-size: .95rem;
+      font-weight: 400;
+      line-height: 1.85;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+
+    .about-stats {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 1.2rem; margin-top: 2.5rem;
+    }
+    .stat-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.4rem 1.6rem;
+      transition: border-color .25s, transform .25s;
+    }
+    .stat-box:hover {
+      border-color: var(--accent);
+      transform: translateY(-3px);
+    }
+    .stat-num {
+      font-family: var(--font-head);
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1;
+      margin-bottom: .3rem;
+    }
+    .stat-label {
+      font-size: .78rem;
+      font-weight: 500;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* About visual — animated box */
+    .about-visual {
+      position: relative;
+      aspect-ratio: 4/5;
+      border-radius: 20px;
+      overflow: hidden;
+      background: var(--card);
+      border: 1px solid var(--border);
+    }
+    .about-visual-inner {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .av-grid {
+      display: grid; grid-template-columns: repeat(4,1fr);
+      gap: 8px; padding: 2rem; width: 100%;
+    }
+    .av-cell {
+      aspect-ratio: 1;
+      border-radius: 8px;
+      transition: background .4s, transform .4s;
+    }
+    .about-visual-tag {
+      position: absolute; bottom: 1.5rem; left: 1.5rem;
+      background: rgba(9,9,11,.85); backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: 10px; padding: .7rem 1rem;
+    }
+    .about-visual-tag p {
+      font-family: var(--font-head);
+      font-size: .8rem; font-weight: 700; color: var(--text);
+    }
+    .about-visual-tag span {
+      font-size: .7rem; color: var(--muted);
+    }
+
+    /* ── WORK ── */
+    #work {
+      padding: 7rem 3rem;
+      background: var(--surface);
+    }
+    .work-header {
+      max-width: 1200px; margin: 0 auto 3.5rem;
+      display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem;
+    }
+    .work-grid {
+      max-width: 1200px; margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .work-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      transition: transform .3s, border-color .3s, box-shadow .3s;
+      cursor: pointer;
+      position: relative;
+    }
+    .work-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(249,115,22,.3);
+      box-shadow: 0 24px 60px rgba(0,0,0,.5);
+    }
+
+    .work-card-thumb {
+      height: 220px;
+      position: relative;
+      overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .work-card-thumb canvas {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+    }
+    .work-thumb-label {
+      position: relative; z-index: 1;
+      font-family: var(--font-head);
+      font-size: 2.8rem; font-weight: 800;
+      color: rgba(255,255,255,.07);
+      letter-spacing: -.04em;
+      user-select: none;
+    }
+    .work-card-overlay {
+      position: absolute; inset: 0;
+      background: rgba(249,115,22,.9);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity .3s;
+    }
+    .work-card:hover .work-card-overlay { opacity: 1; }
+    .overlay-text {
+      font-family: var(--font-head);
+      font-size: 1rem; font-weight: 700;
+      color: #000; letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+    .work-card-body {
+      padding: 1.5rem 1.8rem 1.8rem;
+    }
+    .work-cat {
+      font-size: .7rem; font-weight: 600;
+      letter-spacing: .14em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: .5rem;
+    }
+    .work-title {
+      font-family: var(--font-head);
+      font-size: 1.15rem; font-weight: 700;
+      color: var(--text); margin-bottom: .5rem;
+      line-height: 1.3;
+    }
+    .work-desc {
+      font-size: .85rem; color: var(--muted);
+      line-height: 1.6; margin-bottom: 1rem;
+    }
+    .work-tags { display: flex; gap: .5rem; flex-wrap: wrap; }
+    .tag {
+      font-size: .7rem; font-weight: 600;
+      padding: .25rem .75rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    /* ── PROCESS ── */
+    #process {
+      padding: 7rem 3rem;
+      max-width: 1200px; margin: 0 auto;
+    }
+    .process-steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem; margin-top: 3.5rem;
+    }
+    .process-step {
+      padding: 2rem;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: var(--card);
+      position: relative;
+      transition: border-color .3s, transform .3s;
+    }
+    .process-step:hover {
+      border-color: var(--accent);
+      transform: translateY(-4px);
+    }
+    .step-num {
+      font-family: var(--font-head);
+      font-size: 3.5rem; font-weight: 800;
+      color: var(--accent-dim);
+      line-height: 1;
+      margin-bottom: .8rem;
+      -webkit-text-stroke: 1px var(--accent);
+      color: transparent;
+    }
+    .step-title {
+      font-family: var(--font-head);
+      font-size: 1.05rem; font-weight: 700;
+      color: var(--text); margin-bottom: .6rem;
+    }
+    .step-desc {
+      font-size: .85rem; color: var(--muted);
+      line-height: 1.65;
+    }
+
+    /* ── SKILLS ── */
+    #skills {
+      padding: 7rem 3rem;
+      background: var(--surface);
+    }
+    .skills-inner {
+      max-width: 1200px; margin: 0 auto;
+    }
+    .skills-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem; align-items: start;
+      margin-top: 3rem;
+    }
+    @media (max-width: 768px) {
+      .skills-grid { grid-template-columns: 1fr; }
+    }
+    .skill-group-label {
+      font-size: .7rem; font-weight: 600;
+      letter-spacing: .14em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 1.2rem;
+    }
+    .skill-tags {
+      display: flex; flex-wrap: wrap; gap: .65rem;
+    }
+    .skill-tag {
+      font-family: var(--font-body);
+      font-size: .82rem; font-weight: 500;
+      padding: .5rem 1.1rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      color: var(--text);
+      background: var(--card);
+      transition: border-color .2s, color .2s, transform .2s;
+      cursor: default;
+    }
+    .skill-tag:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    /* ── TESTIMONIALS ── */
+    #testimonials {
+      padding: 7rem 3rem;
+      max-width: 1200px; margin: 0 auto;
+    }
+    .testi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem; margin-top: 3rem;
+    }
+    .testi-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      transition: border-color .25s;
+    }
+    .testi-card:hover { border-color: rgba(249,115,22,.3); }
+    .testi-quote {
+      font-size: 1.4rem; color: var(--accent);
+      margin-bottom: .8rem;
+    }
+    .testi-text {
+      font-size: .9rem; color: var(--muted);
+      line-height: 1.7; margin-bottom: 1.5rem;
+      font-style: italic;
+    }
+    .testi-author {
+      display: flex; align-items: center; gap: .8rem;
+    }
+    .testi-avatar {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: var(--accent-dim);
+      border: 2px solid var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-head);
+      font-size: .8rem; font-weight: 800;
+      color: var(--accent);
+    }
+    .testi-name {
+      font-family: var(--font-head);
+      font-size: .9rem; font-weight: 700; color: var(--text);
+    }
+    .testi-role {
+      font-size: .75rem; color: var(--muted);
+    }
+
+    /* ── CONTACT ── */
+    #contact {
+      padding: 7rem 3rem;
+      background: var(--surface);
+    }
+    .contact-inner {
+      max-width: 700px; margin: 0 auto; text-align: center;
+    }
+    .contact-form {
+      text-align: left;
+      margin-top: 3rem;
+      display: flex; flex-direction: column; gap: 1rem;
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
+
+    label {
+      font-size: .72rem; font-weight: 600;
+      letter-spacing: .1em; text-transform: uppercase;
+      color: var(--muted); display: block; margin-bottom: .4rem;
+    }
+    input, textarea, select {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: .9rem;
+      padding: .85rem 1.1rem;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(249,115,22,.12);
+    }
+    textarea { resize: vertical; min-height: 130px; }
+    ::placeholder { color: #3f3f46; }
+    select option { background: #18181b; }
+
+    .form-submit {
+      width: 100%;
+      padding: 1rem;
+      border-radius: 10px;
+      background: var(--accent);
+      color: #000;
+      font-family: var(--font-head);
+      font-size: .95rem;
+      font-weight: 700;
+      letter-spacing: .04em;
+      border: none;
+      cursor: pointer;
+      transition: box-shadow .25s, transform .2s;
+    }
+    .form-submit:hover {
+      box-shadow: 0 0 32px var(--accent-glow);
+      transform: translateY(-2px);
+    }
+
+    .contact-links {
+      display: flex; justify-content: center; gap: 1.5rem;
+      margin-top: 3rem; flex-wrap: wrap;
+    }
+    .contact-link {
+      display: flex; align-items: center; gap: .5rem;
+      font-size: .85rem; font-weight: 500;
+      color: var(--muted); text-decoration: none;
+      transition: color .2s;
+    }
+    .contact-link:hover { color: var(--accent); }
+    .contact-link svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.5; }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem 3rem;
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+    }
+    .footer-logo {
+      font-family: var(--font-head);
+      font-weight: 800; font-size: .95rem;
+      color: var(--text);
+    }
+    .footer-logo span { color: var(--accent); }
+    .footer-copy {
+      font-size: .78rem; color: var(--muted);
+    }
+
+    /* ── REVEAL ANIMATIONS ── */
+    .reveal {
+      opacity: 0; transform: translateY(32px);
+      transition: opacity .7s ease, transform .7s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-left {
+      opacity: 0; transform: translateX(-32px);
+      transition: opacity .7s ease, transform .7s ease;
+    }
+    .reveal-left.visible { opacity: 1; transform: translateX(0); }
+    .reveal-right {
+      opacity: 0; transform: translateX(32px);
+      transition: opacity .7s ease, transform .7s ease;
+    }
+    .reveal-right.visible { opacity: 1; transform: translateX(0); }
+
+    /* ── KEYFRAMES ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+    @keyframes scrollPulse {
+      0%,100% { opacity: .3; transform: scaleY(1); }
+      50%      { opacity: 1;  transform: scaleY(1.1); }
+    }
+    @keyframes gridPulse {
+      0%,100% { background: rgba(249,115,22,.06); }
+      50%     { background: rgba(249,115,22,.18); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Custom cursor -->
+<div class="cursor"   id="cur"></div>
+<div class="cursor-ring" id="curRing"></div>
+
+<!-- ── NAV ── -->
+<nav id="main-nav">
+  <a href="#hero" class="nav-logo">LOKESH<span>.</span></a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#work">Work</a></li>
+    <li><a href="#process">Process</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <a href="#contact" class="nav-cta">Hire Me</a>
+</nav>
+
+<!-- ── HERO ── -->
+<section id="hero">
+  <canvas id="hero-canvas"></canvas>
+
+  <p class="hero-eyebrow">Graphic Designer &amp; Agentic Workloads</p>
+
+  <h1 class="hero-name">
+    LOKESH
+    <span class="line2">DESIGN</span>
+  </h1>
+
+  <p class="hero-role">
+    Creating <span>visual identities</span>, crafting
+    <span>intelligent workflows</span>, and building
+    <span>AI-driven design systems</span>
+  </p>
+
+  <div class="hero-btns">
+    <a href="#work" class="btn btn-accent">View Work</a>
+    <a href="#about" class="btn btn-outline">About Me</a>
+  </div>
+
+  <div class="hero-scroll-hint">
+    <div class="scroll-line"></div>
+    <span class="scroll-label">Scroll</span>
+  </div>
+</section>
+
+<!-- ── MARQUEE ── -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <span>Brand Identity</span><span class="accent">✦</span>
+    <span>UI/UX Design</span><span class="accent">✦</span>
+    <span>Motion Graphics</span><span class="accent">✦</span>
+    <span>Agentic Workflows</span><span class="accent">✦</span>
+    <span>Visual Systems</span><span class="accent">✦</span>
+    <span>AI Design Tools</span><span class="accent">✦</span>
+    <span>Typography</span><span class="accent">✦</span>
+    <span>Design Strategy</span><span class="accent">✦</span>
+    <span>Brand Identity</span><span class="accent">✦</span>
+    <span>UI/UX Design</span><span class="accent">✦</span>
+    <span>Motion Graphics</span><span class="accent">✦</span>
+    <span>Agentic Workflows</span><span class="accent">✦</span>
+    <span>Visual Systems</span><span class="accent">✦</span>
+    <span>AI Design Tools</span><span class="accent">✦</span>
+    <span>Typography</span><span class="accent">✦</span>
+    <span>Design Strategy</span><span class="accent">✦</span>
+  </div>
+</div>
+
+<!-- ── ABOUT ── -->
+<section id="about">
+  <div class="about-grid">
+    <div class="about-text reveal-left">
+      <p class="section-label">About Me</p>
+      <h2 class="section-heading">Design is a language,<br>I'm fluent in it.</h2>
+      <p class="section-body">
+        I'm Lokesh — a graphic designer who operates at the intersection of visual craft and intelligent automation. I design brand identities, UI systems, and motion pieces that feel alive and purposeful.
+      </p>
+      <p class="section-body">
+        Beyond traditional design, I build agentic workflows that automate repetitive design ops — from asset generation to delivery pipelines — using AI tools and n8n orchestration.
+      </p>
+      <div class="about-stats">
+        <div class="stat-box">
+          <div class="stat-num">50+</div>
+          <div class="stat-label">Projects Done</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num">3yr</div>
+          <div class="stat-label">Experience</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num">30+</div>
+          <div class="stat-label">Happy Clients</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num">12+</div>
+          <div class="stat-label">AI Workflows</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="about-visual reveal-right">
+      <div class="about-visual-inner">
+        <div class="av-grid" id="av-grid"></div>
+      </div>
+      <div class="about-visual-tag">
+        <p>Lokesh · Graphic Designer</p>
+        <span>Open to opportunities</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── WORK ── -->
+<section id="work">
+  <div class="work-header reveal">
+    <div>
+      <p class="section-label">Selected Work</p>
+      <h2 class="section-heading" style="margin-bottom:0">Projects I'm proud of.</h2>
+    </div>
+    <a href="#contact" class="btn btn-outline" style="white-space:nowrap">All Projects →</a>
+  </div>
+  <div class="work-grid">
+
+    <div class="work-card reveal">
+      <div class="work-card-thumb" style="background:linear-gradient(135deg,#1a0a00,#3d1a00)">
+        <span class="work-thumb-label">01</span>
+        <div class="work-card-overlay"><span class="overlay-text">View Project →</span></div>
+      </div>
+      <div class="work-card-body">
+        <p class="work-cat">Brand Identity</p>
+        <h3 class="work-title">Ember — Artisan Coffee Brand</h3>
+        <p class="work-desc">Full visual identity system: logo, packaging, colour palette, and brand guidelines for an artisan coffee startup.</p>
+        <div class="work-tags">
+          <span class="tag">Branding</span>
+          <span class="tag">Packaging</span>
+          <span class="tag">Figma</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="work-card reveal">
+      <div class="work-card-thumb" style="background:linear-gradient(135deg,#0a0a1a,#1a1a3d)">
+        <span class="work-thumb-label">02</span>
+        <div class="work-card-overlay"><span class="overlay-text">View Project →</span></div>
+      </div>
+      <div class="work-card-body">
+        <p class="work-cat">UI/UX Design</p>
+        <h3 class="work-title">Pulse — Health Tracking App</h3>
+        <p class="work-desc">End-to-end UI/UX design for a mobile health tracker: user flows, wireframes, prototypes, and a complete design system.</p>
+        <div class="work-tags">
+          <span class="tag">UI/UX</span>
+          <span class="tag">Mobile</span>
+          <span class="tag">Design System</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="work-card reveal">
+      <div class="work-card-thumb" style="background:linear-gradient(135deg,#001a0a,#003d1a)">
+        <span class="work-thumb-label">03</span>
+        <div class="work-card-overlay"><span class="overlay-text">View Project →</span></div>
+      </div>
+      <div class="work-card-body">
+        <p class="work-cat">Agentic Workflow</p>
+        <h3 class="work-title">AutoBrand — AI Asset Pipeline</h3>
+        <p class="work-desc">An n8n + AI pipeline that takes a brand brief and auto-generates logo variants, social templates, and a colour palette.</p>
+        <div class="work-tags">
+          <span class="tag">n8n</span>
+          <span class="tag">AI Tools</span>
+          <span class="tag">Automation</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="work-card reveal">
+      <div class="work-card-thumb" style="background:linear-gradient(135deg,#1a0a0a,#3d0a0a)">
+        <span class="work-thumb-label">04</span>
+        <div class="work-card-overlay"><span class="overlay-text">View Project →</span></div>
+      </div>
+      <div class="work-card-body">
+        <p class="work-cat">Motion Design</p>
+        <h3 class="work-title">Kinetic — Brand Motion Pack</h3>
+        <p class="work-desc">Animated logo intro, social media templates, and a kinetic typography reel for a tech company rebrand.</p>
+        <div class="work-tags">
+          <span class="tag">Motion</span>
+          <span class="tag">After Effects</span>
+          <span class="tag">Lottie</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="work-card reveal">
+      <div class="work-card-thumb" style="background:linear-gradient(135deg,#0a0a0a,#2a2a2a)">
+        <span class="work-thumb-label">05</span>
+        <div class="work-card-overlay"><span class="overlay-text">View Project →</span></div>
+      </div>
+      <div class="work-card-body">
+        <p class="work-cat">Web Design</p>
+        <h3 class="work-title">Void — Portfolio Site for Artist</h3>
+        <p class="work-desc">Minimal dark portfolio site with scroll animations and Three.js background for a digital artist.</p>
+        <div class="work-tags">
+          <span class="tag">Web Design</span>
+          <span class="tag">Three.js</span>
+          <span class="tag">HTML/CSS</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="work-card reveal">
+      <div class="work-card-thumb" style="background:linear-gradient(135deg,#0a0a1a,#1a0a2a)">
+        <span class="work-thumb-label">06</span>
+        <div class="work-card-overlay"><span class="overlay-text">View Project →</span></div>
+      </div>
+      <div class="work-card-body">
+        <p class="work-cat">Design System</p>
+        <h3 class="work-title">Nova — SaaS Component Library</h3>
+        <p class="work-desc">A comprehensive Figma design system with 200+ components, tokens, and auto-layout patterns for a B2B SaaS platform.</p>
+        <div class="work-tags">
+          <span class="tag">Design System</span>
+          <span class="tag">Figma</span>
+          <span class="tag">Tokens</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── PROCESS ── -->
+<section id="process">
+  <p class="section-label reveal">My Process</p>
+  <h2 class="section-heading reveal">How I work.</h2>
+  <div class="process-steps">
+
+    <div class="process-step reveal">
+      <div class="step-num">01</div>
+      <h3 class="step-title">Discover</h3>
+      <p class="step-desc">Deep-dive into your brand, audience, and goals. Competitive analysis, mood boards, and a clear creative brief.</p>
+    </div>
+
+    <div class="process-step reveal">
+      <div class="step-num">02</div>
+      <h3 class="step-title">Design</h3>
+      <p class="step-desc">Sketch, wireframe, iterate. From rough concepts to high-fidelity designs with clean systems and intentional decisions.</p>
+    </div>
+
+    <div class="process-step reveal">
+      <div class="step-num">03</div>
+      <h3 class="step-title">Automate</h3>
+      <p class="step-desc">Set up AI-powered pipelines and agentic workflows to scale design outputs — social packs, variant generation, delivery.</p>
+    </div>
+
+    <div class="process-step reveal">
+      <div class="step-num">04</div>
+      <h3 class="step-title">Deliver</h3>
+      <p class="step-desc">Production-ready assets, full brand guidelines, handoff docs, and post-launch support. No loose ends.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── SKILLS ── -->
+<section id="skills">
+  <div class="skills-inner">
+    <p class="section-label reveal">Skills &amp; Tools</p>
+    <h2 class="section-heading reveal">What I bring to the table.</h2>
+    <div class="skills-grid">
+
+      <div class="reveal">
+        <p class="skill-group-label">Design</p>
+        <div class="skill-tags">
+          <span class="skill-tag">Brand Identity</span>
+          <span class="skill-tag">UI/UX Design</span>
+          <span class="skill-tag">Typography</span>
+          <span class="skill-tag">Motion Design</span>
+          <span class="skill-tag">Packaging Design</span>
+          <span class="skill-tag">Illustration</span>
+          <span class="skill-tag">Design Systems</span>
+          <span class="skill-tag">Color Theory</span>
+        </div>
+      </div>
+
+      <div class="reveal">
+        <p class="skill-group-label">Tools</p>
+        <div class="skill-tags">
+          <span class="skill-tag">Figma</span>
+          <span class="skill-tag">Adobe Illustrator</span>
+          <span class="skill-tag">Photoshop</span>
+          <span class="skill-tag">After Effects</span>
+          <span class="skill-tag">Blender</span>
+          <span class="skill-tag">Three.js</span>
+          <span class="skill-tag">Framer</span>
+        </div>
+      </div>
+
+      <div class="reveal">
+        <p class="skill-group-label">Agentic &amp; AI</p>
+        <div class="skill-tags">
+          <span class="skill-tag">n8n Automation</span>
+          <span class="skill-tag">Prompt Engineering</span>
+          <span class="skill-tag">LLM APIs</span>
+          <span class="skill-tag">Midjourney</span>
+          <span class="skill-tag">Stable Diffusion</span>
+          <span class="skill-tag">AI Workflows</span>
+        </div>
+      </div>
+
+      <div class="reveal">
+        <p class="skill-group-label">Code &amp; Delivery</p>
+        <div class="skill-tags">
+          <span class="skill-tag">HTML / CSS</span>
+          <span class="skill-tag">JavaScript</span>
+          <span class="skill-tag">Webflow</span>
+          <span class="skill-tag">Lottie / Rive</span>
+          <span class="skill-tag">Git</span>
+          <span class="skill-tag">Design Tokens</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── TESTIMONIALS ── -->
+<section id="testimonials">
+  <p class="section-label reveal">Testimonials</p>
+  <h2 class="section-heading reveal">What clients say.</h2>
+  <div class="testi-grid">
+
+    <div class="testi-card reveal">
+      <div class="testi-quote">"</div>
+      <p class="testi-text">Lokesh transformed our brand from forgettable to iconic. The identity system he built is something we're proud to show everywhere.</p>
+      <div class="testi-author">
+        <div class="testi-avatar">AR</div>
+        <div>
+          <p class="testi-name">Arjun Reddy</p>
+          <p class="testi-role">CEO, Ember Coffee</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="testi-card reveal">
+      <div class="testi-quote">"</div>
+      <p class="testi-text">The AutoBrand pipeline saved us 20+ hours a week. Lokesh's agentic workflow thinking is genuinely next-level for a designer.</p>
+      <div class="testi-author">
+        <div class="testi-avatar">PM</div>
+        <div>
+          <p class="testi-name">Priya Menon</p>
+          <p class="testi-role">Founder, TechForge</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="testi-card reveal">
+      <div class="testi-quote">"</div>
+      <p class="testi-text">Incredibly detail-oriented. The design system Lokesh built for our SaaS reduced our dev-to-design friction to near zero.</p>
+      <div class="testi-author">
+        <div class="testi-avatar">SK</div>
+        <div>
+          <p class="testi-name">Srikar Kumar</p>
+          <p class="testi-role">CTO, NovaSaaS</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── CONTACT ── -->
+<section id="contact">
+  <div class="contact-inner">
+    <p class="section-label reveal">Contact</p>
+    <h2 class="section-heading reveal">Let's make something great.</h2>
+    <p class="section-body reveal" style="text-align:center">
+      Open to branding projects, UI/UX work, agentic workflow consulting, and full-time opportunities.
+    </p>
+
+    <form class="contact-form reveal" onsubmit="handleSubmit(event)">
+      <div class="form-row">
+        <div>
+          <label for="cf-name">Your Name</label>
+          <input id="cf-name" type="text" placeholder="Ravi Sharma" required />
+        </div>
+        <div>
+          <label for="cf-email">Email Address</label>
+          <input id="cf-email" type="email" placeholder="ravi@company.com" required />
+        </div>
+      </div>
+      <div>
+        <label for="cf-service">Service Needed</label>
+        <select id="cf-service">
+          <option value="">Select a service…</option>
+          <option>Brand Identity</option>
+          <option>UI/UX Design</option>
+          <option>Motion Design</option>
+          <option>Agentic Workflow</option>
+          <option>Design System</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div>
+        <label for="cf-msg">Project Brief</label>
+        <textarea id="cf-msg" placeholder="Tell me about your project, timeline, and budget…" required></textarea>
+      </div>
+      <button type="submit" class="form-submit">Send Message ↗</button>
+      <div id="form-ok" style="display:none;text-align:center;color:var(--accent);font-size:.85rem;font-weight:600;padding:.5rem">
+        ✓ Message received — I'll get back to you within 24 hours.
+      </div>
+    </form>
+
+    <div class="contact-links reveal">
+      <a href="https://github.com/lokesh-palaplle-18" target="_blank" class="contact-link">
+        <svg viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+        GitHub
+      </a>
+      <a href="https://www.linkedin.com/in/palapalle-lokesh-458a81448/" target="_blank" class="contact-link">
+        <svg viewBox="0 0 24 24"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+        LinkedIn
+      </a>
+      <a href="tel:+919490233047" class="contact-link">
+        <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.77a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        +91 9490233047
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <span class="footer-logo">LOKESH<span>.</span></span>
+  <span class="footer-copy">© 2026 — Graphic Designer &amp; Agentic Workloads</span>
+  <span class="footer-copy" style="font-size:.7rem">Built with Three.js · Syne + Manrope · ui-ux-pro-max</span>
+</footer>
+
+<!-- ── THREE.JS HERO BACKGROUND ── -->
+<script type="module">
+import * as THREE from 'three';
+
+const canvas = document.getElementById('hero-canvas');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 200);
+camera.position.z = 22;
+
+function resize() {
+  const h = document.getElementById('hero');
+  renderer.setSize(h.clientWidth, h.clientHeight);
+  camera.aspect = h.clientWidth / h.clientHeight;
+  camera.updateProjectionMatrix();
+}
+resize();
+window.addEventListener('resize', resize);
+
+// Particle grid — minimal scattered points
+const PCOUNT = 1200;
+const pPos = new Float32Array(PCOUNT * 3);
+const pDrift = new Float32Array(PCOUNT);
+for (let i = 0; i < PCOUNT; i++) {
+  pPos[i*3]   = (Math.random()-0.5)*70;
+  pPos[i*3+1] = (Math.random()-0.5)*50;
+  pPos[i*3+2] = (Math.random()-0.5)*30;
+  pDrift[i]   = 0.001 + Math.random() * 0.003;
+}
+const pGeo = new THREE.BufferGeometry();
+pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+const pMat = new THREE.PointsMaterial({
+  color: 0xf97316, size: 0.09,
+  transparent: true, opacity: 0.45, sizeAttenuation: true
+});
+scene.add(new THREE.Points(pGeo, pMat));
+
+// Thin wireframe ring
+const ring = new THREE.Mesh(
+  new THREE.TorusGeometry(9, 0.04, 6, 80),
+  new THREE.MeshBasicMaterial({ color: 0xf97316, transparent: true, opacity: 0.1 })
+);
+scene.add(ring);
+
+const ring2 = new THREE.Mesh(
+  new THREE.TorusGeometry(14, 0.03, 6, 80),
+  new THREE.MeshBasicMaterial({ color: 0xf97316, transparent: true, opacity: 0.06 })
+);
+ring2.rotation.x = Math.PI * 0.4;
+scene.add(ring2);
+
+// Floating wireframe icosahedron — very subtle
+const ico = new THREE.LineSegments(
+  new THREE.WireframeGeometry(new THREE.IcosahedronGeometry(5, 0)),
+  new THREE.LineBasicMaterial({ color: 0xf97316, transparent: true, opacity: 0.05 })
+);
+scene.add(ico);
+
+// Mouse
+const mouse = { x: 0, y: 0 };
+window.addEventListener('mousemove', e => {
+  mouse.x = (e.clientX / innerWidth  - 0.5) * 2;
+  mouse.y = (e.clientY / innerHeight - 0.5) * 2;
+});
+
+let t = 0;
+function animate() {
+  requestAnimationFrame(animate);
+  t += 0.008;
+
+  // particle slow rise
+  const pp = pGeo.attributes.position.array;
+  for (let i = 0; i < PCOUNT; i++) {
+    pp[i*3+1] += pDrift[i];
+    if (pp[i*3+1] > 25) pp[i*3+1] = -25;
+  }
+  pGeo.attributes.position.needsUpdate = true;
+
+  ring.rotation.z  = t * 0.06;
+  ring2.rotation.z = -t * 0.04;
+  ring2.rotation.y = t * 0.03;
+  ico.rotation.y   = t * 0.04;
+  ico.rotation.x   = t * 0.025;
+
+  camera.position.x += (mouse.x * 2 - camera.position.x) * 0.03;
+  camera.position.y += (-mouse.y * 1.5 - camera.position.y) * 0.03;
+  camera.lookAt(0, 0, 0);
+
+  renderer.render(scene, camera);
+}
+animate();
+</script>
+
+<!-- ── ABOUT GRID ANIMATION ── -->
+<script>
+const COLORS = ['#f97316','#fb923c','#1c1c1e','#27272a','#3f3f46','#f97316','#18181b','#ea580c'];
+const avGrid = document.getElementById('av-grid');
+if (avGrid) {
+  for (let i = 0; i < 16; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'av-cell';
+    cell.style.background = COLORS[i % COLORS.length];
+    cell.style.animationDelay = (i * 0.12) + 's';
+    cell.style.animation = `gridPulse ${2 + (i%3)}s ${i*0.15}s ease-in-out infinite`;
+    avGrid.appendChild(cell);
+  }
+}
+</script>
+
+<!-- ── SCROLL REVEAL ── -->
+<script>
+const revealIO = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('visible'); revealIO.unobserve(e.target); }
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => revealIO.observe(el));
+
+// Nav scroll
+window.addEventListener('scroll', () => {
+  document.getElementById('main-nav').classList.toggle('scrolled', window.scrollY > 60);
+});
+</script>
+
+<!-- ── CUSTOM CURSOR ── -->
+<script>
+const cur = document.getElementById('cur');
+const curRing = document.getElementById('curRing');
+let rx = 0, ry = 0;
+window.addEventListener('mousemove', e => {
+  cur.style.left = e.clientX + 'px';
+  cur.style.top  = e.clientY + 'px';
+  rx += (e.clientX - rx) * 0.12;
+  ry += (e.clientY - ry) * 0.12;
+  curRing.style.left = e.clientX + 'px';
+  curRing.style.top  = e.clientY + 'px';
+});
+document.querySelectorAll('a, button, .work-card, .skill-tag, .stat-box').forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    cur.style.width = '18px'; cur.style.height = '18px';
+    curRing.style.width = '52px'; curRing.style.height = '52px';
+  });
+  el.addEventListener('mouseleave', () => {
+    cur.style.width = '10px'; cur.style.height = '10px';
+    curRing.style.width = '36px'; curRing.style.height = '36px';
+  });
+});
+</script>
+
+<!-- ── CONTACT FORM ── -->
+<script>
+function handleSubmit(e) {
+  e.preventDefault();
+  document.getElementById('form-ok').style.display = 'block';
+  e.target.reset();
+  setTimeout(() => document.getElementById('form-ok').style.display = 'none', 5000);
+}
+</script>
+
+</body>
+</html>
