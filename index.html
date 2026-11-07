@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PALAPALLE LOKESH // Java Backend Developer & Agentic AI</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            nxs: {
+              green:  '#00ff88',
+              cyan:   '#00d4ff',
+              amber:  '#f59e0b',
+              purple: '#a855f7',
+              dark:   '#020a14',
+            }
+          },
+          fontFamily: {
+            mono: ['JetBrains Mono', 'Space Mono', 'Consolas', 'monospace'],
+            sans: ['Inter', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <style>
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: #020a14; }
+    ::-webkit-scrollbar-thumb { background: rgba(0,255,136,.3); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(0,255,136,.7); }
+
+    /* ── SCROLL PROGRESS BAR ── */
+    #scroll-bar {
+      position: fixed; top: 0; left: 0; height: 3px; z-index: 9999;
+      background: linear-gradient(90deg, #00ff88, #00d4ff, #a855f7);
+      width: 0%; transition: width .1s linear;
+    }
+
+    .glow-green { text-shadow: 0 0 14px rgba(0,255,136,.7), 0 0 28px rgba(0,255,136,.3); }
+    .glow-cyan  { text-shadow: 0 0 14px rgba(0,212,255,.7), 0 0 28px rgba(0,212,255,.3); }
+    .box-glow   { box-shadow: 0 0 28px -6px rgba(0,255,136,.35); }
+    .box-glow-cyan { box-shadow: 0 0 28px -6px rgba(0,212,255,.3); }
+
+    .glass {
+      background: rgba(5,12,28,.78);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid rgba(0,255,136,.14);
+      transition: border-color .3s;
+    }
+    .glass:hover { border-color: rgba(0,255,136,.32); }
+    .glass-cyan  { background: rgba(5,12,28,.78); backdrop-filter: blur(18px); border: 1px solid rgba(0,212,255,.18); }
+
+    .vignette {
+      background: radial-gradient(ellipse at center, transparent 15%, rgba(2,10,20,.93) 90%);
+    }
+
+    @keyframes spin-cw  { to { transform: rotate(360deg);  } }
+    @keyframes spin-ccw { to { transform: rotate(-360deg); } }
+    @keyframes float    { 0%,100% { transform: translateY(0);   } 50% { transform: translateY(-8px); } }
+    @keyframes blink    { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+    @keyframes fadeUp   { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes burst-out { from { transform:scale(0);opacity:1; } to { transform:scale(3);opacity:0; } }
+
+    .spin-slow    { animation: spin-cw  14s linear infinite; }
+    .spin-reverse { animation: spin-ccw  9s linear infinite; }
+    .floating     { animation: float 4s ease-in-out infinite; }
+    .blink        { animation: blink 1s step-end infinite; }
+    .fade-up      { animation: fadeUp .7s ease forwards; }
+    .fade-out     { opacity:0; pointer-events:none; transition: opacity .8s ease; }
+
+    .skill-track { height:3px; background:rgba(255,255,255,.06); border-radius:999px; overflow:hidden; }
+    .skill-fill  {
+      height:100%; border-radius:999px;
+      width:0; transition: width 1.6s cubic-bezier(.25,1,.5,1);
+    }
+
+    .cursor-blink::after { content:'_'; animation: blink .8s step-end infinite; color:#00ff88; }
+
+    .project-card { transition: transform .3s ease, box-shadow .3s ease; }
+    .project-card:hover { transform: translateY(-5px); box-shadow:0 20px 60px -15px rgba(0,255,136,.22); }
+
+    .chip {
+      display:inline-flex; align-items:center; padding:2px 10px;
+      border-radius:999px; font-size:10px; font-family:'JetBrains Mono',monospace;
+    }
+    .chip-g  { border:1px solid rgba(0,255,136,.28);  color:rgba(0,255,136,.9);  background:rgba(0,255,136,.06); }
+    .chip-c  { border:1px solid rgba(0,212,255,.28);  color:rgba(0,212,255,.9);  background:rgba(0,212,255,.06); }
+    .chip-a  { border:1px solid rgba(245,158,11,.28); color:rgba(245,158,11,.9); background:rgba(245,158,11,.06); }
+    .chip-p  { border:1px solid rgba(168,85,247,.3);  color:rgba(168,85,247,.9); background:rgba(168,85,247,.07); }
+
+    /* nav active state */
+    .nav-btn.active { color:#00ff88; background:rgba(0,255,136,.08); }
+
+    /* back-to-top */
+    #back-top {
+      position:fixed; bottom:28px; right:24px; z-index:60;
+      width:42px; height:42px; border-radius:50%;
+      background:rgba(0,255,136,.12); border:1px solid rgba(0,255,136,.3);
+      color:#00ff88; display:flex; align-items:center; justify-content:center;
+      cursor:pointer; transition:all .3s; opacity:0; pointer-events:none;
+    }
+    #back-top.show { opacity:1; pointer-events:auto; }
+    #back-top:hover { background:rgba(0,255,136,.25); transform:translateY(-3px); }
+
+    /* interest cards */
+    .interest-card {
+      transition: transform .3s, box-shadow .3s;
+    }
+    .interest-card:hover { transform:translateY(-4px); box-shadow:0 16px 40px -12px rgba(0,212,255,.22); }
+
+    /* scanline texture overlay on preloader */
+    #preloader::after {
+      content:''; position:absolute; inset:0; pointer-events:none;
+      background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,.04) 3px, rgba(0,0,0,.04) 4px);
+    }
+  </style>
+</head>
+
+<body class="bg-[#020a14] text-slate-100 font-sans overflow-x-hidden selection:bg-[#00ff88] selection:text-black">
+
+  <!-- SCROLL PROGRESS BAR -->
+  <div id="scroll-bar"></div>
+
+  <!-- BACK TO TOP -->
+  <button id="back-top" onclick="window.scrollTo({top:0,behavior:'smooth'});beep(1000,.05);">
+    <i class="fa-solid fa-chevron-up text-sm"></i>
+  </button>
+
+  <!-- =========================================== -->
+  <!-- PRELOADER                                    -->
+  <!-- =========================================== -->
+  <div id="preloader" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#020a14] relative">
+    <div class="relative flex items-center justify-center w-64 h-64">
+      <div class="absolute inset-0 rounded-full border-2 border-dashed border-[#00ff88]/20 spin-slow"></div>
+      <div class="absolute inset-4 rounded-full border border-[#00d4ff]/15 spin-reverse"></div>
+
+      <svg class="w-44 h-44 -rotate-90" viewBox="0 0 176 176">
+        <circle cx="88" cy="88" r="76" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="2"/>
+        <circle id="prog-ring" cx="88" cy="88" r="76" fill="none"
+                stroke="url(#pg)" stroke-width="3" stroke-linecap="round"
+                stroke-dasharray="477.5" stroke-dashoffset="477.5"/>
+        <defs>
+          <linearGradient id="pg" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%"   stop-color="#00ff88"/>
+            <stop offset="100%" stop-color="#00d4ff"/>
+          </linearGradient>
+        </defs>
+      </svg>
+
+      <div class="absolute flex flex-col items-center">
+        <span id="pct-txt" class="font-mono text-2xl font-bold text-[#00ff88] glow-green">0%</span>
+        <span class="font-mono text-[9px] tracking-widest text-slate-500 mt-1 uppercase">Boot Sequence</span>
+      </div>
+    </div>
+
+    <div class="mt-5 font-mono text-xs text-[#00ff88]/70 flex items-center gap-2 h-5">
+      <span class="w-1.5 h-1.5 rounded-full bg-[#00ff88] animate-ping inline-block"></span>
+      <span id="boot-msg">INITIALIZING PALAPALLE LOKESH — AGENTIC WORLD...</span>
+    </div>
+
+    <div class="mt-3 font-mono text-[10px] text-slate-700 space-y-0.5 text-left">
+      <div>&gt; loading spring-boot-runtime.jar …</div>
+      <div>&gt; mounting ai-agent-modules …</div>
+      <div>&gt; connecting n8n-automation-bus …</div>
+      <div>&gt; calibrating 3d-render-pipeline …</div>
+    </div>
+  </div>
+
+  <!-- 3-D BACKGROUND CANVAS + VIGNETTE -->
+  <div id="canvas-wrap" class="fixed inset-0 z-0"></div>
+  <div class="fixed inset-0 z-0 vignette pointer-events-none"></div>
+
+  <!-- =========================================== -->
+  <!-- NAVIGATION                                  -->
+  <!-- =========================================== -->
+  <header class="fixed top-3 left-0 right-0 z-40 px-6 flex justify-between items-center">
+
+    <div class="glass px-4 py-2 rounded-2xl flex items-center gap-3">
+      <div class="w-8 h-8 rounded-lg bg-[#00ff88]/10 border border-[#00ff88]/30 flex items-center justify-center text-[#00ff88] spin-slow">
+        <i class="fa-solid fa-atom text-xs"></i>
+      </div>
+      <div>
+        <span class="font-mono font-bold tracking-widest text-sm text-white">PALAPALLE<span class="text-[#00ff88]">.LOKESH</span></span>
+        <span class="hidden sm:inline font-mono text-[9px] text-slate-500 ml-2 border-l border-slate-700 pl-2 uppercase">AGENTIC WORLD</span>
+      </div>
+    </div>
+
+    <nav id="main-nav" class="hidden md:flex items-center gap-0.5 glass p-1 rounded-full font-mono text-[11px]">
+      <button data-section="hero"      class="nav-btn px-3.5 py-1.5 rounded-full hover:text-[#00ff88] transition" onclick="goto('hero')">00.PROFILE</button>
+      <button data-section="stack"     class="nav-btn px-3.5 py-1.5 rounded-full hover:text-[#00ff88] transition" onclick="goto('stack')">01.STACK</button>
+      <button data-section="projects"  class="nav-btn px-3.5 py-1.5 rounded-full hover:text-[#00ff88] transition" onclick="goto('projects')">02.PROJECTS</button>
+      <button data-section="skills"    class="nav-btn px-3.5 py-1.5 rounded-full hover:text-[#00ff88] transition" onclick="goto('skills')">03.SKILLS</button>
+      <button data-section="interests" class="nav-btn px-3.5 py-1.5 rounded-full hover:text-[#00ff88] transition" onclick="goto('interests')">04.INTERESTS</button>
+      <button data-section="connect"   class="nav-btn px-3.5 py-1.5 rounded-full hover:text-[#00ff88] transition" onclick="goto('connect')">05.CONNECT</button>
+    </nav>
+
+    <div class="flex items-center gap-2">
+      <button id="snd-btn" class="p-2 rounded-lg glass hover:border-[#00ff88]/30 text-slate-400 hover:text-[#00ff88] transition">
+        <i id="snd-icon" class="fa-solid fa-volume-xmark text-sm"></i>
+      </button>
+      <button onclick="goto('connect')" class="px-4 py-2 text-xs font-mono rounded-lg bg-[#00ff88] text-slate-950 font-bold hover:bg-emerald-300 transition shadow-[0_0_20px_rgba(0,255,136,.35)]">
+        HIRE ME <i class="fa-solid fa-arrow-right ml-1 text-[10px]"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- =========================================== -->
+  <!-- MAIN                                        -->
+  <!-- =========================================== -->
+  <main class="relative z-10">
+
+    <!-- ======= HERO ======= -->
+    <section id="hero" class="min-h-screen flex flex-col justify-center items-center px-6 pt-28 pb-16 text-center">
+      <div class="max-w-4xl mx-auto flex flex-col items-center">
+
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass text-xs font-mono text-[#00ff88] mb-8">
+          <span class="w-2 h-2 rounded-full bg-[#00ff88] animate-pulse"></span>
+          PALAPALLE LOKESH &nbsp;•&nbsp; AI &amp; DATA SCIENCE 2025 &nbsp;•&nbsp; FRESHER &nbsp;•&nbsp; OPEN TO OPPORTUNITIES
+        </div>
+
+        <h1 class="text-4xl sm:text-6xl md:text-7xl font-black tracking-tight uppercase text-white mb-3 leading-tight">
+          Palapalle <span class="text-[#00ff88] glow-green">Lokesh</span>
+        </h1>
+
+        <!-- Typing animation -->
+        <div class="font-mono text-sm text-[#00d4ff] mb-4 tracking-wider h-6 flex items-center gap-1">
+          <span id="typing-text"></span><span class="blink text-[#00ff88]">|</span>
+        </div>
+
+        <p class="text-base sm:text-lg text-slate-400 max-w-2xl font-light leading-relaxed mb-4">
+          Aspiring Java Backend Developer focused on building REST APIs and Spring Boot systems — exploring
+          <span class="text-[#00ff88]">Agentic AI</span>,
+          <span class="text-[#00d4ff]">n8n automation</span>, and
+          <span class="text-[#f59e0b]">cloud infrastructure</span> (GCP &amp; AWS).
+        </p>
+
+        <div class="font-mono text-xs text-slate-500 mb-3">
+          <i class="fa-solid fa-graduation-cap text-[#00ff88] mr-1"></i>
+          Annamacharya Institute of Technology &amp; Sciences, Rajampet &nbsp;•&nbsp; AI &amp; Data Science &nbsp;•&nbsp; 2025
+        </div>
+
+        <!-- Contact chips -->
+        <div class="flex flex-wrap justify-center gap-2 mb-6 font-mono text-xs">
+          <a href="tel:+919490233047" class="chip chip-g"><i class="fa-solid fa-phone mr-1 text-[9px]"></i>+91 9490233047</a>
+          <span class="chip chip-c"><i class="fa-solid fa-location-dot mr-1 text-[9px]"></i>India</span>
+          <a href="https://www.linkedin.com/in/palapalle-lokesh-458a81448/" target="_blank" class="chip chip-c"><i class="fa-brands fa-linkedin mr-1 text-[9px]"></i>LinkedIn</a>
+          <a href="https://github.com/lokesh-palaplle-18" target="_blank" class="chip chip-g"><i class="fa-brands fa-github mr-1 text-[9px]"></i>GitHub</a>
+        </div>
+
+        <div class="font-mono text-xs text-slate-600 mb-10 cursor-blink">
+          &gt; java // spring-boot // maven // swagger // n8n // gcp // aws // llm-agents // rag
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-center gap-4 mb-20">
+          <button onclick="goto('projects')" class="w-full sm:w-auto px-8 py-4 rounded-xl bg-[#00ff88] text-slate-950 font-mono font-bold text-sm tracking-wider hover:bg-emerald-300 transition box-glow flex items-center justify-center gap-2">
+            <i class="fa-solid fa-folder-open"></i> VIEW PROJECTS
+          </button>
+          <button onclick="openModal('bio-modal')" class="w-full sm:w-auto px-8 py-4 rounded-xl glass text-white font-mono text-sm tracking-wider flex items-center justify-center gap-2 hover:border-[#00ff88]/40">
+            <i class="fa-solid fa-terminal text-[#00ff88]"></i> FULL BIO
+          </button>
+        </div>
+
+        <!-- Telemetry cards -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 w-full max-w-3xl font-mono text-xs">
+          <div class="glass p-4 rounded-xl text-left border-l-2 border-l-[#00ff88]">
+            <div class="text-slate-500 mb-1">BACKEND CORE</div>
+            <div class="text-base text-white font-bold">JAVA / JVM</div>
+            <div class="text-[10px] text-[#00ff88] mt-1">SPRING ECOSYSTEM</div>
+          </div>
+          <div class="glass p-4 rounded-xl text-left border-l-2 border-l-[#00d4ff]">
+            <div class="text-slate-500 mb-1">AI TRACK</div>
+            <div class="text-base text-white font-bold">LLMs + RAG</div>
+            <div class="text-[10px] text-[#00d4ff] mt-1">AGENTIC WORKFLOWS</div>
+          </div>
+          <div class="glass p-4 rounded-xl text-left border-l-2 border-l-[#f59e0b]">
+            <div class="text-slate-500 mb-1">AUTOMATION</div>
+            <div class="text-base text-white font-bold">N8N + APIS</div>
+            <div class="text-[10px] text-[#f59e0b] mt-1">WORKFLOW ENGINE</div>
+          </div>
+          <div class="glass p-4 rounded-xl text-left border-l-2 border-l-[#a855f7]">
+            <div class="text-slate-500 mb-1">FPS / RENDER</div>
+            <div id="fps-el" class="text-base text-white font-bold">60.0</div>
+            <div class="text-[10px] text-[#a855f7] mt-1">WEBGL 3-D LIVE</div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ======= 01 TECH STACK NODE MAP ======= -->
+    <section id="stack" class="min-h-screen py-24 px-6 flex flex-col justify-center items-center">
+      <div class="max-w-6xl w-full mx-auto">
+
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-10">
+          <div>
+            <span class="font-mono text-xs text-[#00ff88] tracking-widest uppercase">// 01. TECHNOLOGY STACK</span>
+            <h2 class="text-3xl sm:text-5xl font-bold text-white mt-2">Tech Ecosystem</h2>
+          </div>
+          <p class="text-slate-400 max-w-sm text-sm mt-4 md:mt-0">
+            Interactive dependency graph mapping backend, AI, automation, and cloud technology layers. Click to burst!
+          </p>
+        </div>
+
+        <div class="relative w-full h-[540px] glass rounded-2xl overflow-hidden">
+          <div class="absolute inset-0 z-10 pointer-events-none p-5 flex flex-col justify-between">
+            <div class="flex justify-between items-center font-mono text-xs text-slate-500">
+              <span class="flex items-center gap-2">
+                <i class="fa-solid fa-circle-nodes text-[#00ff88]"></i> TECH DEPENDENCY GRAPH
+              </span>
+              <span class="glass px-3 py-1 rounded-full text-[10px] border-0">HOVER NODES</span>
+            </div>
+            <div id="nd-panel" class="glass p-4 rounded-xl max-w-xs border-l-4 border-l-[#00ff88] pointer-events-auto opacity-90">
+              <div id="nd-title" class="font-mono text-xs text-[#00ff88] font-bold mb-1">BACKEND CORE // JAVA</div>
+              <p id="nd-desc" class="text-xs text-slate-300 leading-relaxed">Hover a node to inspect the technology and its role in the stack.</p>
+            </div>
+          </div>
+          <canvas id="node-canvas" class="w-full h-full cursor-crosshair"></canvas>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ======= 02 PROJECTS ======= -->
+    <section id="projects" class="min-h-screen py-24 px-6 flex items-center">
+      <div class="max-w-6xl w-full mx-auto">
+        <span class="font-mono text-xs text-[#00ff88] tracking-widest uppercase">// 02. BACKEND PROJECTS</span>
+        <h2 class="text-3xl sm:text-5xl font-bold text-white mt-2 mb-12">Built &amp; Deployed</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+          <!-- Project 1 -->
+          <div class="project-card glass p-7 rounded-2xl group">
+            <div class="flex items-start justify-between mb-5">
+              <div class="w-11 h-11 rounded-xl bg-[#00ff88]/10 border border-[#00ff88]/25 flex items-center justify-center text-[#00ff88] text-lg group-hover:scale-110 transition-transform">
+                <i class="fa-solid fa-briefcase"></i>
+              </div>
+              <div class="flex gap-1 flex-wrap justify-end">
+                <span class="chip chip-g">Java</span>
+                <span class="chip chip-g">Spring Boot</span>
+              </div>
+            </div>
+            <h3 class="text-lg font-bold text-white mb-2">Job &amp; Internship Portal API</h3>
+            <p class="text-slate-400 text-sm leading-relaxed mb-5">
+              REST API backend for job and internship management. Handles job discovery, internship listings, application workflows, and role-based access for recruiters and applicants.
+            </p>
+            <ul class="font-mono text-xs text-slate-300 space-y-2 border-t border-slate-800 pt-4 mb-5">
+              <li class="flex gap-2"><i class="fa-solid fa-check text-[#00ff88] mt-0.5 text-[10px]"></i>REST API Architecture + Endpoints</li>
+              <li class="flex gap-2"><i class="fa-solid fa-check text-[#00ff88] mt-0.5 text-[10px]"></i>MySQL + Spring Data JPA / Hibernate</li>
+              <li class="flex gap-2"><i class="fa-solid fa-check text-[#00ff88] mt-0.5 text-[10px]"></i>Role-Based Access Control</li>
+            </ul>
+            <div class="flex gap-1.5 flex-wrap mb-4">
+              <span class="chip chip-a">MySQL</span>
+              <span class="chip chip-a">JPA</span>
+              <span class="chip chip-c">REST</span>
+              <span class="chip chip-p">Spring Security</span>
+            </div>
+            <a href="https://github.com/lokesh-palaplle-18" target="_blank" class="flex items-center gap-1.5 text-xs font-mono text-slate-500 hover:text-[#00ff88] transition">
+              <i class="fa-brands fa-github"></i> View on GitHub
+            </a>
+          </div>
+
+          <!-- Project 2 -->
+          <div class="project-card glass p-7 rounded-2xl group" style="border-color:rgba(0,212,255,.2);box-shadow:0 0 35px rgba(0,212,255,.07)">
+            <div class="flex items-start justify-between mb-5">
+              <div class="w-11 h-11 rounded-xl bg-[#00d4ff]/10 border border-[#00d4ff]/25 flex items-center justify-center text-[#00d4ff] text-lg group-hover:scale-110 transition-transform">
+                <i class="fa-solid fa-comments"></i>
+              </div>
+              <div class="flex gap-1">
+                <span class="chip chip-c">WebSocket</span>
+              </div>
+            </div>
+            <h3 class="text-lg font-bold text-white mb-2">RealTime Chat Backend</h3>
+            <p class="text-slate-400 text-sm leading-relaxed mb-5">
+              Real-time messaging backend using WebSocket protocol. Demonstrates event-driven architecture, message persistence, and high-concurrency connection handling.
+            </p>
+            <ul class="font-mono text-xs text-slate-300 space-y-2 border-t border-slate-800 pt-4 mb-5">
+              <li class="flex gap-2"><i class="fa-solid fa-check text-[#00d4ff] mt-0.5 text-[10px]"></i>WebSocket Real-Time Messaging</li>
+              <li class="flex gap-2"><i class="fa-solid fa-check text-[#00d4ff] mt-0.5 text-[10px]"></i>Event-Driven Architecture</li>
+              <li class="flex gap-2"><i class="fa-solid fa-check text-[#00d4ff] mt-0.5 text-[10px]"></i>Message Persistence Layer</li>
+            </ul>
+            <div class="flex gap-1.5 flex-wrap mb-4">
+              <span class="chip chip-g">Java</span>
+              <span class="chip chip-c">WebSocket</span>
+              <span class="chip chip-a">Spring</span>
+            </div>
+            <a href="https://github.com/lokesh-palaplle-18" target="_blank" class="flex items-center gap-1.5 text-xs font-mono text-slate-500 hover:text-[#00d4ff] transition">
+              <i class="fa-brands fa-github"></i> View on GitHub
+            </a>
+          </div>
+
+          <!-- Project 3 -->
+          <div class="project-card glass p-7 rounded-2xl group">
+            <div class="flex items-start justify-between mb-5">
+              <div class="w-11 h-11 rounded-xl bg-[#a855f7]/10 border border-[#a855f7]/25 flex items-center justify-center text-[#a855f7] text-lg group-hover:scale-110 transition-transform">
+                <i class="fa-solid fa-link"></i>
+              </div>
+              <div class="flex gap-1">
+                <span class="chip chip-p">Microservice</span>
+              </div>
+            </div>
+            <h3 class="text-lg font-bold text-white mb-2">URL Shortener Service</h3>
+            <p class="text-slate-400 text-sm leading-relaxed mb-5">
+              URL shortening microservice converting long URLs to compact, shareable links. Includes custom alias support, redirect tracking, and analytics endpoints.
+            </p>
+            <ul class="font-mono text-xs text-slate-300 space-y-2 border-t border-slate-800 pt-4 mb-5">
+              <li class="flex gap-2"><i class="fa-solid fa-check text-[#a855f7] mt-0.5 text-[10px]"></i>URL Hashing &amp; Base62 Encoding</li>
+              <li class="flex gap-2"><i class="fa-solid fa-check text-[#a855f7] mt-0.5 text-[10px]"></i>Redirect Analytics Tracking</li>
+              <li class="flex gap-2"><i class="fa-solid fa-check text-[#a855f7] mt-0.5 text-[10px]"></i>Custom Alias Support</li>
+            </ul>
+            <div class="flex gap-1.5 flex-wrap mb-4">
+              <span class="chip chip-g">Java</span>
+              <span class="chip chip-a">MySQL</span>
+              <span class="chip chip-c">REST API</span>
+            </div>
+            <a href="https://github.com/lokesh-palaplle-18" target="_blank" class="flex items-center gap-1.5 text-xs font-mono text-slate-500 hover:text-[#a855f7] transition">
+              <i class="fa-brands fa-github"></i> View on GitHub
+            </a>
+          </div>
+
+        </div>
+
+        <!-- Dev Tools Section -->
+        <div class="mt-16">
+          <span class="font-mono text-xs text-[#00d4ff] tracking-widest uppercase">// DEV TOOLS &amp; ENVIRONMENT</span>
+          <h3 class="text-2xl font-bold text-white mt-2 mb-8">Developer Toolkit</h3>
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+            <div class="glass p-4 rounded-xl text-center hover:border-[#00ff88]/40 transition">
+              <i class="fa-solid fa-code text-2xl text-[#00ff88] mb-2 block"></i>
+              <div class="font-mono text-xs text-white">IntelliJ IDEA</div>
+              <div class="font-mono text-[10px] text-slate-500 mt-1">IDE</div>
+            </div>
+            <div class="glass p-4 rounded-xl text-center hover:border-[#00ff88]/40 transition">
+              <i class="fa-brands fa-git-alt text-2xl text-[#f59e0b] mb-2 block"></i>
+              <div class="font-mono text-xs text-white">Git &amp; GitHub</div>
+              <div class="font-mono text-[10px] text-slate-500 mt-1">VERSION CONTROL</div>
+            </div>
+            <div class="glass p-4 rounded-xl text-center hover:border-[#00d4ff]/40 transition">
+              <i class="fa-solid fa-satellite-dish text-2xl text-[#00d4ff] mb-2 block"></i>
+              <div class="font-mono text-xs text-white">Postman</div>
+              <div class="font-mono text-[10px] text-slate-500 mt-1">API TESTING</div>
+            </div>
+            <div class="glass p-4 rounded-xl text-center hover:border-[#00ff88]/40 transition">
+              <i class="fa-solid fa-file-code text-2xl text-[#00ff88] mb-2 block"></i>
+              <div class="font-mono text-xs text-white">Swagger</div>
+              <div class="font-mono text-[10px] text-slate-500 mt-1">API DOCS</div>
+            </div>
+            <div class="glass p-4 rounded-xl text-center hover:border-[#a855f7]/40 transition">
+              <i class="fa-solid fa-database text-2xl text-[#a855f7] mb-2 block"></i>
+              <div class="font-mono text-xs text-white">H2 Database</div>
+              <div class="font-mono text-[10px] text-slate-500 mt-1">IN-MEMORY DB</div>
+            </div>
+            <div class="glass p-4 rounded-xl text-center hover:border-[#f59e0b]/40 transition">
+              <i class="fa-solid fa-cubes text-2xl text-[#f59e0b] mb-2 block"></i>
+              <div class="font-mono text-xs text-white">Maven</div>
+              <div class="font-mono text-[10px] text-slate-500 mt-1">BUILD TOOL</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ======= 03 SKILLS ======= -->
+    <section id="skills" class="min-h-screen py-24 px-6 flex items-center bg-black/30">
+      <div class="max-w-6xl w-full mx-auto">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-14 items-center">
+
+          <div>
+            <span class="font-mono text-xs text-[#00ff88] tracking-widest uppercase">// 03. SKILL MATRIX</span>
+            <h2 class="text-3xl sm:text-5xl font-bold text-white mt-2 mb-6">Technical Proficiency</h2>
+            <p class="text-slate-400 text-sm leading-relaxed mb-8">
+              Core stack built around Java backend development — progressively expanding into AI engineering, cloud infrastructure, and intelligent automation.
+            </p>
+
+            <div id="skill-list" class="space-y-4"></div>
+
+            <!-- 3-D scene controls -->
+            <div class="mt-8 space-y-3">
+              <div class="glass p-4 rounded-xl">
+                <div class="flex justify-between text-xs font-mono mb-2">
+                  <span class="text-slate-400">PARTICLE DENSITY</span>
+                  <span id="density-lbl" class="text-[#00ff88]">8,000 nodes</span>
+                </div>
+                <input id="p-slider" type="range" min="2000" max="15000" value="8000"
+                  class="w-full accent-[#00ff88] h-1 rounded-lg appearance-none cursor-pointer bg-slate-800">
+              </div>
+              <div class="glass p-4 rounded-xl">
+                <div class="flex justify-between text-xs font-mono mb-2">
+                  <span class="text-slate-400">ORBIT VELOCITY</span>
+                  <span id="speed-lbl" class="text-[#00d4ff]">1.0×</span>
+                </div>
+                <input id="s-slider" type="range" min="0.1" max="3.0" step="0.1" value="1.0"
+                  class="w-full accent-[#00d4ff] h-1 rounded-lg appearance-none cursor-pointer bg-slate-800">
+              </div>
+            </div>
+          </div>
+
+          <!-- stat tiles -->
+          <div class="grid grid-cols-2 gap-4">
+            <div class="glass p-6 rounded-2xl flex flex-col justify-between h-40">
+              <i class="fa-brands fa-java text-3xl text-[#00ff88]"></i>
+              <div>
+                <div class="text-xl font-mono font-bold text-white">Spring Boot</div>
+                <div class="text-[11px] font-mono text-slate-400 mt-1">BACKEND FRAMEWORK</div>
+              </div>
+            </div>
+            <div class="glass p-6 rounded-2xl flex flex-col justify-between h-40">
+              <i class="fa-solid fa-robot text-3xl text-[#00d4ff]"></i>
+              <div>
+                <div class="text-xl font-mono font-bold text-white">LLMs + RAG</div>
+                <div class="text-[11px] font-mono text-slate-400 mt-1">AI ENGINEERING</div>
+              </div>
+            </div>
+            <div class="glass p-6 rounded-2xl flex flex-col justify-between h-40">
+              <i class="fa-solid fa-cloud text-3xl text-[#f59e0b]"></i>
+              <div>
+                <div class="text-xl font-mono font-bold text-white">GCP + AWS</div>
+                <div class="text-[11px] font-mono text-slate-400 mt-1">CLOUD PLATFORMS</div>
+              </div>
+            </div>
+            <div class="glass p-6 rounded-2xl flex flex-col justify-between h-40">
+              <i class="fa-solid fa-diagram-project text-3xl text-[#a855f7]"></i>
+              <div>
+                <div class="text-xl font-mono font-bold text-white">n8n Flows</div>
+                <div class="text-[11px] font-mono text-slate-400 mt-1">AUTOMATION ENGINE</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ======= 04 AREAS OF INTEREST ======= -->
+    <section id="interests" class="min-h-screen py-24 px-6 flex items-center">
+      <div class="max-w-6xl w-full mx-auto">
+        <span class="font-mono text-xs text-[#00d4ff] tracking-widest uppercase">// 04. AREAS OF INTEREST</span>
+        <h2 class="text-3xl sm:text-5xl font-bold text-white mt-2 mb-4">Passion &amp; Focus</h2>
+        <p class="text-slate-400 text-sm mb-12 max-w-2xl">Domains I'm actively learning, building in, and excited to grow into as a professional.</p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-16">
+
+          <div class="interest-card glass p-7 rounded-2xl" style="border-color:rgba(0,255,136,.2)">
+            <div class="w-12 h-12 rounded-xl bg-[#00ff88]/10 border border-[#00ff88]/25 flex items-center justify-center text-[#00ff88] text-xl mb-5">
+              <i class="fa-brands fa-java"></i>
+            </div>
+            <h3 class="text-lg font-bold text-white mb-2">Java Backend Engineering</h3>
+            <p class="text-slate-400 text-sm leading-relaxed">Building scalable REST APIs and microservices using Spring Boot, JPA, and Maven — focused on clean architecture and performance.</p>
+          </div>
+
+          <div class="interest-card glass p-7 rounded-2xl" style="border-color:rgba(0,212,255,.2)">
+            <div class="w-12 h-12 rounded-xl bg-[#00d4ff]/10 border border-[#00d4ff]/25 flex items-center justify-center text-[#00d4ff] text-xl mb-5">
+              <i class="fa-solid fa-robot"></i>
+            </div>
+            <h3 class="text-lg font-bold text-white mb-2">Agentic AI Systems</h3>
+            <p class="text-slate-400 text-sm leading-relaxed">Designing multi-step AI agent workflows that integrate LLMs with tools, memory, and planning to execute complex tasks autonomously.</p>
+          </div>
+
+          <div class="interest-card glass p-7 rounded-2xl" style="border-color:rgba(245,158,11,.2)">
+            <div class="w-12 h-12 rounded-xl bg-[#f59e0b]/10 border border-[#f59e0b]/25 flex items-center justify-center text-[#f59e0b] text-xl mb-5">
+              <i class="fa-solid fa-diagram-project"></i>
+            </div>
+            <h3 class="text-lg font-bold text-white mb-2">n8n Automation</h3>
+            <p class="text-slate-400 text-sm leading-relaxed">Creating intelligent workflow automations with n8n — connecting APIs, AI models, and data pipelines to reduce manual work.</p>
+          </div>
+
+          <div class="interest-card glass p-7 rounded-2xl" style="border-color:rgba(168,85,247,.2)">
+            <div class="w-12 h-12 rounded-xl bg-[#a855f7]/10 border border-[#a855f7]/25 flex items-center justify-center text-[#a855f7] text-xl mb-5">
+              <i class="fa-solid fa-layer-group"></i>
+            </div>
+            <h3 class="text-lg font-bold text-white mb-2">RAG &amp; Vector Databases</h3>
+            <p class="text-slate-400 text-sm leading-relaxed">Building Retrieval-Augmented Generation pipelines using embeddings, vector DBs and LLM API integration for intelligent search.</p>
+          </div>
+
+          <div class="interest-card glass p-7 rounded-2xl" style="border-color:rgba(0,255,136,.2)">
+            <div class="w-12 h-12 rounded-xl bg-[#00ff88]/10 border border-[#00ff88]/25 flex items-center justify-center text-[#00ff88] text-xl mb-5">
+              <i class="fa-solid fa-cloud"></i>
+            </div>
+            <h3 class="text-lg font-bold text-white mb-2">Cloud Infrastructure</h3>
+            <p class="text-slate-400 text-sm leading-relaxed">Deploying and managing cloud applications on GCP and AWS — learning infrastructure fundamentals, scalability, and DevOps practices.</p>
+          </div>
+
+          <div class="interest-card glass p-7 rounded-2xl" style="border-color:rgba(0,212,255,.2)">
+            <div class="w-12 h-12 rounded-xl bg-[#00d4ff]/10 border border-[#00d4ff]/25 flex items-center justify-center text-[#00d4ff] text-xl mb-5">
+              <i class="fa-brands fa-python"></i>
+            </div>
+            <h3 class="text-lg font-bold text-white mb-2">Data Science &amp; ML</h3>
+            <p class="text-slate-400 text-sm leading-relaxed">Applying Python, Pandas, NumPy, and ML fundamentals to analyze data and build predictive models alongside AI system development.</p>
+          </div>
+
+        </div>
+
+        <!-- Personal Strengths -->
+        <div class="glass p-8 rounded-2xl" style="border-color:rgba(0,255,136,.18)">
+          <div class="font-mono text-xs text-[#00ff88] tracking-widest uppercase mb-4">// PERSONAL STRENGTHS</div>
+          <div class="flex flex-wrap gap-3">
+            <span class="chip chip-g py-2 px-4 text-xs"><i class="fa-solid fa-lightbulb mr-2"></i>Quick Learner</span>
+            <span class="chip chip-c py-2 px-4 text-xs"><i class="fa-solid fa-bullseye mr-2"></i>Problem Solver</span>
+            <span class="chip chip-a py-2 px-4 text-xs"><i class="fa-solid fa-users mr-2"></i>Team Collaboration</span>
+            <span class="chip chip-p py-2 px-4 text-xs"><i class="fa-solid fa-comments mr-2"></i>Communication</span>
+            <span class="chip chip-g py-2 px-4 text-xs"><i class="fa-solid fa-clock mr-2"></i>Time Management</span>
+            <span class="chip chip-c py-2 px-4 text-xs"><i class="fa-solid fa-adjust mr-2"></i>Adaptability</span>
+            <span class="chip chip-a py-2 px-4 text-xs"><i class="fa-solid fa-brain mr-2"></i>Critical Thinking</span>
+            <span class="chip chip-p py-2 px-4 text-xs"><i class="fa-solid fa-fire mr-2"></i>Passionate About AI</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ======= 05 CONNECT ======= -->
+    <section id="connect" class="min-h-screen py-24 px-6 flex items-center justify-center text-center">
+      <div class="max-w-2xl w-full mx-auto glass p-10 sm:p-14 rounded-3xl" style="border-color:rgba(0,255,136,.3);box-shadow:0 0 80px rgba(0,255,136,.1)">
+        <span class="font-mono text-xs text-[#00ff88] tracking-widest uppercase">// 05. CONNECT</span>
+        <h2 class="text-3xl sm:text-5xl font-bold text-white mt-3 mb-4">Let's Build Together</h2>
+        <p class="text-slate-400 text-sm leading-relaxed mb-8">
+          I'm <span class="text-white font-semibold">Palapalle Lokesh</span> — a fresher Java Backend Developer from Annamacharya Institute of Technology &amp; Sciences (AI &amp; Data Science, 2025). My goal is to specialize in <span class="text-[#00ff88]">Agentic AI</span> and intelligent workflow automation — building systems that automate AI workloads, integrate LLMs, and execute multi-step tasks through <span class="text-[#00d4ff]">n8n</span> and cloud platforms.
+        </p>
+
+        <form onsubmit="handleContact(event)" class="space-y-3 max-w-sm mx-auto">
+          <input type="email" required placeholder="your@email.com"
+            class="w-full px-5 py-3 rounded-xl bg-black/60 border border-slate-700 text-white font-mono text-sm focus:outline-none focus:border-[#00ff88] transition placeholder-slate-600">
+          <textarea placeholder="Tell me about your project…" rows="3"
+            class="w-full px-5 py-3 rounded-xl bg-black/60 border border-slate-700 text-white font-mono text-sm focus:outline-none focus:border-[#00ff88] transition placeholder-slate-600 resize-none"></textarea>
+          <button type="submit"
+            class="w-full py-4 rounded-xl bg-[#00ff88] text-slate-950 font-mono font-bold text-sm tracking-wider hover:bg-emerald-300 transition box-glow">
+            SEND MESSAGE <i class="fa-solid fa-paper-plane ml-2 text-xs"></i>
+          </button>
+        </form>
+
+        <div id="contact-ok" class="mt-4 font-mono text-xs text-[#00ff88] hidden">
+          <i class="fa-solid fa-circle-check mr-1"></i> MESSAGE RECEIVED. I'LL GET BACK TO YOU SHORTLY.
+        </div>
+
+        <div class="mt-8 pt-6 border-t border-slate-800">
+          <div class="flex justify-center gap-3 mb-4">
+            <a href="https://github.com/lokesh-palaplle-18" target="_blank" class="w-10 h-10 rounded-xl glass flex items-center justify-center text-slate-400 hover:text-[#00ff88] hover:border-[#00ff88]/40 transition">
+              <i class="fa-brands fa-github"></i>
+            </a>
+            <a href="https://www.linkedin.com/in/palapalle-lokesh-458a81448/" target="_blank" class="w-10 h-10 rounded-xl glass flex items-center justify-center text-slate-400 hover:text-[#00d4ff] hover:border-[#00d4ff]/40 transition">
+              <i class="fa-brands fa-linkedin"></i>
+            </a>
+            <a href="tel:+919490233047" class="w-10 h-10 rounded-xl glass flex items-center justify-center text-slate-400 hover:text-[#f59e0b] hover:border-[#f59e0b]/40 transition">
+              <i class="fa-solid fa-phone"></i>
+            </a>
+          </div>
+          <div class="font-mono text-xs text-slate-600">
+            <i class="fa-solid fa-location-dot mr-1 text-[#00d4ff]"></i>India &nbsp;·&nbsp;
+            <i class="fa-solid fa-phone mr-1 text-[#00ff88]"></i>+91 9490233047
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- =========================================== -->
+  <!-- FOOTER                                      -->
+  <!-- =========================================== -->
+  <footer class="relative z-10 py-8 px-6 border-t border-slate-800/60">
+    <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="font-mono text-xs text-slate-500">
+        <span class="text-[#00ff88]">PALAPALLE LOKESH</span> &nbsp;·&nbsp; AGENTIC WORLD &nbsp;·&nbsp; &copy; 2025
+      </div>
+      <div class="flex items-center gap-4 font-mono text-xs text-slate-600">
+        <a href="https://github.com/lokesh-palaplle-18" target="_blank" class="hover:text-[#00ff88] transition flex items-center gap-1">
+          <i class="fa-brands fa-github"></i> GitHub
+        </a>
+        <a href="https://www.linkedin.com/in/palapalle-lokesh-458a81448/" target="_blank" class="hover:text-[#00d4ff] transition flex items-center gap-1">
+          <i class="fa-brands fa-linkedin"></i> LinkedIn
+        </a>
+        <span class="flex items-center gap-1">
+          <i class="fa-solid fa-location-dot text-[#00d4ff]"></i> India
+        </span>
+      </div>
+      <div class="font-mono text-[10px] text-slate-700">
+        Built with Three.js + Tailwind CSS
+      </div>
+    </div>
+  </footer>
+
+  <!-- =========================================== -->
+  <!-- FULL BIO MODAL                              -->
+  <!-- =========================================== -->
+  <div id="bio-modal" class="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/85 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="glass p-8 rounded-2xl max-w-2xl w-full border-[#00ff88]/30 relative max-h-[82vh] overflow-y-auto" style="border-color:rgba(0,255,136,.28)">
+      <button onclick="closeModal('bio-modal')" class="absolute top-4 right-4 text-slate-400 hover:text-[#00ff88] text-lg">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="font-mono text-xs text-[#00ff88] mb-1">// FULL PROFILE SPECIFICATION</div>
+      <h3 class="text-2xl font-bold text-white mb-1">Palapalle Lokesh</h3>
+      <p class="text-sm text-slate-400 mb-3">Java Backend Developer | Agentic AI | n8n Automation | GCP &amp; AWS</p>
+      <div class="flex flex-wrap gap-2 mb-4">
+        <span class="chip chip-g"><i class="fa-solid fa-graduation-cap mr-1"></i>Annamacharya ITS, Rajampet</span>
+        <span class="chip chip-c">AI &amp; Data Science 2025</span>
+        <span class="chip chip-a">Fresher — Entry Level</span>
+        <span class="chip chip-p"><i class="fa-solid fa-phone mr-1"></i>+91 9490233047</span>
+      </div>
+
+      <div class="glass p-4 rounded-xl mb-4" style="border-color:rgba(0,255,136,.18)">
+        <div class="font-mono text-xs text-[#00ff88] font-bold mb-2">CAREER OBJECTIVE</div>
+        <p class="text-xs text-slate-400 leading-relaxed">To become a Java Backend Developer specializing in Agentic AI and intelligent workflow automation — building systems that automate AI workloads, integrate LLMs, and execute multi-step tasks through n8n and cloud platforms with minimal manual intervention.</p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+        <div class="glass p-4 rounded-xl" style="border-color:rgba(0,255,136,.2)">
+          <div class="font-mono text-xs text-[#00ff88] font-bold mb-2">01 JAVA BACKEND</div>
+          <ul class="space-y-1 text-xs font-mono text-slate-400">
+            <li>&gt; Java &amp; OOP / Java 8 Features</li>
+            <li>&gt; Collections Framework (List, Map, Set)</li>
+            <li>&gt; Streams &amp; Lambda Expressions</li>
+            <li>&gt; Spring Boot + Spring Framework</li>
+            <li>&gt; Spring Data JPA + Hibernate</li>
+            <li>&gt; REST API Development</li>
+            <li>&gt; MySQL &amp; H2 Database</li>
+            <li>&gt; Maven &amp; Swagger / OpenAPI</li>
+          </ul>
+        </div>
+
+        <div class="glass p-4 rounded-xl" style="border-color:rgba(0,212,255,.2)">
+          <div class="font-mono text-xs text-[#00d4ff] font-bold mb-2">02 AGENTIC AI &amp; LLMs</div>
+          <ul class="space-y-1 text-xs font-mono text-slate-400">
+            <li>&gt; Large Language Models (LLMs)</li>
+            <li>&gt; Prompt Engineering</li>
+            <li>&gt; RAG &amp; Vector Databases</li>
+            <li>&gt; Embeddings &amp; LLM API Integration</li>
+            <li>&gt; AI Agents &amp; Agentic Workflows</li>
+            <li>&gt; AI-powered App Development</li>
+          </ul>
+        </div>
+
+        <div class="glass p-4 rounded-xl" style="border-color:rgba(245,158,11,.2)">
+          <div class="font-mono text-xs text-[#f59e0b] font-bold mb-2">03 AI AUTOMATION</div>
+          <ul class="space-y-1 text-xs font-mono text-slate-400">
+            <li>&gt; n8n Workflow Automation</li>
+            <li>&gt; AI Agent Integration</li>
+            <li>&gt; Multi-step Workflow Automation</li>
+            <li>&gt; AI Workload Automation</li>
+            <li>&gt; API-based Automation</li>
+          </ul>
+        </div>
+
+        <div class="glass p-4 rounded-xl" style="border-color:rgba(245,158,11,.2)">
+          <div class="font-mono text-xs text-[#f59e0b] font-bold mb-2">04 CLOUD</div>
+          <ul class="space-y-1 text-xs font-mono text-slate-400">
+            <li>&gt; Google Cloud Platform (GCP)</li>
+            <li>&gt; Amazon Web Services (AWS)</li>
+            <li>&gt; Cloud Application Deployment</li>
+            <li>&gt; Scalable App Hosting</li>
+            <li>&gt; Cloud Infrastructure Fundamentals</li>
+          </ul>
+        </div>
+
+        <div class="glass p-4 rounded-xl sm:col-span-2" style="border-color:rgba(168,85,247,.2)">
+          <div class="font-mono text-xs text-[#a855f7] font-bold mb-2">05 AI &amp; DATA SCIENCE</div>
+          <div class="grid grid-cols-2 gap-1">
+            <ul class="space-y-1 text-xs font-mono text-slate-400">
+              <li>&gt; Python Programming</li>
+              <li>&gt; NumPy, Pandas, Matplotlib</li>
+              <li>&gt; Data Processing &amp; Analysis</li>
+            </ul>
+            <ul class="space-y-1 text-xs font-mono text-slate-400">
+              <li>&gt; ML Fundamentals</li>
+              <li>&gt; Neural Network Fundamentals</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="mt-6 pt-4 border-t border-slate-800 flex justify-between items-center">
+        <div class="flex gap-3">
+          <a href="https://github.com/lokesh-palaplle-18" target="_blank" class="chip chip-g text-xs py-1.5"><i class="fa-brands fa-github mr-1"></i>GitHub</a>
+          <a href="https://www.linkedin.com/in/palapalle-lokesh-458a81448/" target="_blank" class="chip chip-c text-xs py-1.5"><i class="fa-brands fa-linkedin mr-1"></i>LinkedIn</a>
+        </div>
+        <button onclick="closeModal('bio-modal')" class="px-5 py-2 rounded-lg bg-[#00ff88] text-black font-mono text-xs font-bold">CLOSE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================== -->
+  <!-- JAVASCRIPT                                  -->
+  <!-- =========================================== -->
+  <script>
+  // ── AUDIO ──────────────────────────────────────
+  let actx = null, snd = false;
+  function initAudio() { if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)(); }
+  function beep(f=440, d=.08) {
+    if (!snd || !actx) return;
+    try {
+      const o = actx.createOscillator(), g = actx.createGain();
+      o.type='sine'; o.frequency.setValueAtTime(f, actx.currentTime);
+      g.gain.setValueAtTime(.04, actx.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001, actx.currentTime+d);
+      o.connect(g); g.connect(actx.destination);
+      o.start(); o.stop(actx.currentTime+d);
+    } catch(e){}
+  }
+  document.getElementById('snd-btn').addEventListener('click', () => {
+    initAudio(); snd = !snd;
+    const ic = document.getElementById('snd-icon');
+    if (snd) { ic.className='fa-solid fa-volume-high text-sm text-[#00ff88]'; beep(880,.1); }
+    else      { ic.className='fa-solid fa-volume-xmark text-sm text-slate-400'; }
+  });
+
+  // ── SCROLL PROGRESS BAR ──────────────────────
+  const scrollBar = document.getElementById('scroll-bar');
+  window.addEventListener('scroll', () => {
+    const scrolled = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+    scrollBar.style.width = scrolled + '%';
+    // Back to top button
+    const btn = document.getElementById('back-top');
+    if (window.scrollY > 400) btn.classList.add('show');
+    else btn.classList.remove('show');
+  });
+
+  // ── PRELOADER ──────────────────────────────────
+  const msgs = [
+    'INITIALIZING PALAPALLE LOKESH — AGENTIC WORLD…',
+    'LOADING SPRING-BOOT RUNTIME…',
+    'MOUNTING AI-AGENT MODULES…',
+    'CALIBRATING 3-D RENDER PIPELINE…',
+    'CONNECTING N8N AUTOMATION BUS…',
+    'SYSTEM ONLINE.'
+  ];
+  let pct=0;
+  const ring=document.getElementById('prog-ring'),
+        ptxt=document.getElementById('pct-txt'),
+        bmsg=document.getElementById('boot-msg'),
+        pre =document.getElementById('preloader');
+  const pi = setInterval(()=>{
+    pct += Math.floor(Math.random()*8)+3;
+    if (pct>100) pct=100;
+    ring.style.strokeDashoffset = 477.5-(pct/100)*477.5;
+    ptxt.innerText = pct+'%';
+    bmsg.innerText = msgs[Math.min(Math.floor((pct/100)*msgs.length), msgs.length-1)];
+    if (pct===100){
+      clearInterval(pi);
+      setTimeout(()=>{ pre.classList.add('fade-out'); setTimeout(()=>pre.style.display='none',900); }, 600);
+    }
+  }, 80);
+
+  // ── TYPING ANIMATION ──────────────────────────
+  const roles = ['Java Backend Developer', 'Agentic AI Builder', 'n8n Automation Engineer', 'Cloud App Developer'];
+  let roleIdx = 0, charIdx = 0, isDeleting = false;
+  const typingEl = document.getElementById('typing-text');
+  function typeLoop() {
+    const current = roles[roleIdx];
+    if (!isDeleting) {
+      typingEl.textContent = current.slice(0, charIdx + 1);
+      charIdx++;
+      if (charIdx === current.length) { isDeleting = true; setTimeout(typeLoop, 1800); return; }
+    } else {
+      typingEl.textContent = current.slice(0, charIdx - 1);
+      charIdx--;
+      if (charIdx === 0) { isDeleting = false; roleIdx = (roleIdx + 1) % roles.length; setTimeout(typeLoop, 300); return; }
+    }
+    setTimeout(typeLoop, isDeleting ? 50 : 80);
+  }
+  setTimeout(typeLoop, 1200);
+
+  // ── THREE.JS SCENE ─────────────────────────────
+  const wrap  = document.getElementById('canvas-wrap');
+  const scene = new THREE.Scene();
+  const cam   = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, .1, 1000);
+  cam.position.z = 40;
+  const ren = new THREE.WebGLRenderer({ antialias:true, alpha:true });
+  ren.setSize(innerWidth, innerHeight);
+  ren.setPixelRatio(Math.min(devicePixelRatio,2));
+  wrap.appendChild(ren.domElement);
+
+  // -- Galaxy particles --
+  let pSys=null, orbitMul=1;
+
+  function mkParticles(n){
+    if(pSys) scene.remove(pSys);
+    const geo=new THREE.BufferGeometry();
+    const pos=new Float32Array(n*3), col=new Float32Array(n*3);
+    const cG=new THREE.Color('#00ff88'), cC=new THREE.Color('#00d4ff'),
+          cB=new THREE.Color('#3b82f6'), cP=new THREE.Color('#7c3aed'),
+          cD=new THREE.Color('#060e1e');
+    for(let i=0;i<n;i++){
+      const r=Math.random()*48+2, sp=r*.35;
+      const br=((i%3)*Math.PI*2)/3;
+      const rx=(Math.random()-.5)*r*.25, ry=(Math.random()-.5)*r*.25, rz=(Math.random()-.5)*r*.28;
+      pos[i*3]  =Math.cos(br+sp)*r+rx;
+      pos[i*3+1]=(Math.random()-.5)*10+ry;
+      pos[i*3+2]=Math.sin(br+sp)*r+rz;
+      const t=r/48;
+      let mc;
+      if(t<.25)      mc=cG.clone().lerp(cC,t*4);
+      else if(t<.55) mc=cC.clone().lerp(cB,(t-.25)*3.3);
+      else if(t<.8)  mc=cB.clone().lerp(cP,(t-.55)*4);
+      else           mc=cP.clone().lerp(cD,(t-.8)*5);
+      col[i*3]=mc.r; col[i*3+1]=mc.g; col[i*3+2]=mc.b;
+    }
+    geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+    geo.setAttribute('color',   new THREE.BufferAttribute(col,3));
+
+    const cv=document.createElement('canvas'); cv.width=cv.height=16;
+    const cx=cv.getContext('2d');
+    const grd=cx.createRadialGradient(8,8,0,8,8,8);
+    grd.addColorStop(0,'rgba(255,255,255,1)');
+    grd.addColorStop(.3,'rgba(0,255,136,.9)');
+    grd.addColorStop(1,'rgba(0,0,0,0)');
+    cx.fillStyle=grd; cx.fillRect(0,0,16,16);
+
+    const mat=new THREE.PointsMaterial({
+      size:.55, vertexColors:true,
+      map:new THREE.CanvasTexture(cv),
+      transparent:true, blending:THREE.AdditiveBlending, depthWrite:false
+    });
+    pSys=new THREE.Points(geo,mat); scene.add(pSys);
+  }
+  mkParticles(8000);
+
+  // -- Particle burst on canvas click --
+  const burstParticles = [];
+  function spawnBurst(mx, my) {
+    const count = 30;
+    const geo = new THREE.BufferGeometry();
+    const pos = new Float32Array(count * 3);
+    const colors = ['#00ff88','#00d4ff','#f59e0b','#a855f7'];
+    const color = new THREE.Color(colors[Math.floor(Math.random()*colors.length)]);
+    for (let i = 0; i < count; i++) {
+      const angle = (i / count) * Math.PI * 2;
+      const r = Math.random() * 0.1;
+      pos[i*3]   = Math.cos(angle) * r;
+      pos[i*3+1] = Math.sin(angle) * r;
+      pos[i*3+2] = (Math.random() - 0.5) * 0.1;
+    }
+    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    const mat = new THREE.PointsMaterial({ color: color, size: 0.4, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false });
+    const burst = new THREE.Points(geo, mat);
+    // project screen to 3D (approximate, z=0 plane)
+    const ndcX = (mx / innerWidth) * 2 - 1;
+    const ndcY = -(my / innerHeight) * 2 + 1;
+    burst.position.set(ndcX * 25, ndcY * 15, 0);
+    burst.userData = { vx: new Float32Array(count*3), born: Date.now() };
+    for (let i = 0; i < count; i++) {
+      burst.userData.vx[i*3]   = (Math.random()-0.5)*0.3;
+      burst.userData.vx[i*3+1] = (Math.random()-0.5)*0.3;
+      burst.userData.vx[i*3+2] = (Math.random()-0.5)*0.2;
+    }
+    scene.add(burst);
+    burstParticles.push(burst);
+    beep(1200,.06);
+  }
+
+  ren.domElement.addEventListener('click', e => {
+    spawnBurst(e.clientX, e.clientY);
+  });
+
+  // -- Torus rings --
+  function torusMat(c,op){ return new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:op}); }
+  const t1=new THREE.Mesh(new THREE.TorusGeometry(10,.07,8,120), torusMat('#00ff88',.18));
+  t1.rotation.x=Math.PI*.25; scene.add(t1);
+
+  const t2=new THREE.Mesh(new THREE.TorusGeometry(17,.05,8,120), torusMat('#00d4ff',.13));
+  t2.rotation.x=Math.PI*.55; t2.rotation.z=Math.PI*.15; scene.add(t2);
+
+  const t3=new THREE.Mesh(new THREE.TorusGeometry(24,.04,6,120), torusMat('#7c3aed',.09));
+  t3.rotation.x=Math.PI*.72; t3.rotation.y=Math.PI*.3; scene.add(t3);
+
+  // -- Wireframe icosahedron --
+  const icoWire=new THREE.LineSegments(
+    new THREE.WireframeGeometry(new THREE.IcosahedronGeometry(7,1)),
+    new THREE.LineBasicMaterial({color:'#00ff88',transparent:true,opacity:.07})
+  );
+  scene.add(icoWire);
+
+  // -- Orbiting tech nodes --
+  const orbDefs=[
+    {c:'#00ff88',r:10,sp:.6,tilt:.25,a:0,   sz:.35},
+    {c:'#00d4ff',r:14,sp:.4,tilt:.5, a:2.1, sz:.3 },
+    {c:'#f59e0b',r:18,sp:.25,tilt:.65,a:4.2,sz:.28},
+    {c:'#7c3aed',r:12,sp:.5,tilt:.8, a:1.0, sz:.32},
+    {c:'#ec4899',r:16,sp:.35,tilt:.4, a:3.5, sz:.28},
+  ];
+  const orbMeshes=orbDefs.map(o=>{
+    const m=new THREE.Mesh(
+      new THREE.SphereGeometry(o.sz,8,8),
+      new THREE.MeshBasicMaterial({color:o.c,transparent:true,opacity:.9})
+    );
+    scene.add(m);
+    return {...o, mesh:m, angle:o.a};
+  });
+
+  // -- Central core --
+  const core=new THREE.Mesh(
+    new THREE.SphereGeometry(1.3,16,16),
+    new THREE.MeshBasicMaterial({color:'#00ff88',transparent:true,opacity:.7})
+  );
+  scene.add(core);
+
+  // -- Mouse / resize --
+  let mx=0,my=0,tx=0,ty=0;
+  window.addEventListener('mousemove',e=>{ mx=(e.clientX/innerWidth-.5)*.001; my=(e.clientY/innerHeight-.5)*.001; });
+  window.addEventListener('resize',()=>{ cam.aspect=innerWidth/innerHeight; cam.updateProjectionMatrix(); ren.setSize(innerWidth,innerHeight); });
+
+  // -- FPS --
+  let lastT=performance.now(), frames=0;
+  const fpsEl=document.getElementById('fps-el');
+
+  const clk=new THREE.Clock();
+  function animate(){
+    requestAnimationFrame(animate);
+    const t=clk.getElapsedTime();
+    tx+=(mx-tx)*.05; ty+=(my-ty)*.05;
+
+    if(pSys){ pSys.rotation.y=t*.04*orbitMul+tx*2; pSys.rotation.x=ty*1.2; }
+    t1.rotation.z=t*.09*orbitMul;
+    t2.rotation.z=-t*.06*orbitMul;
+    t3.rotation.y=t*.05*orbitMul;
+    icoWire.rotation.y=t*.06; icoWire.rotation.x=t*.035;
+
+    orbMeshes.forEach(o=>{
+      o.angle+=.005*o.sp*orbitMul;
+      const tilt=o.tilt*Math.PI;
+      o.mesh.position.x=Math.cos(o.angle)*o.r;
+      o.mesh.position.y=Math.sin(o.angle)*o.r*Math.sin(tilt);
+      o.mesh.position.z=Math.sin(o.angle)*o.r*Math.cos(tilt);
+    });
+
+    const pulse=.7+Math.sin(t*2.5)*.3;
+    core.material.opacity=pulse;
+    core.scale.setScalar(1+Math.sin(t*2)*.15);
+
+    // Scroll-triggered camera zoom toward core
+    const scrollFrac = window.scrollY / Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+    const baseZ = 40, minZ = 18;
+    cam.position.z = baseZ - (baseZ - minZ) * scrollFrac;
+    cam.position.y = -scrollFrac * 4;
+
+    // Update burst particles
+    const now = Date.now();
+    for (let i = burstParticles.length - 1; i >= 0; i--) {
+      const b = burstParticles[i];
+      const age = (now - b.userData.born) / 1000;
+      if (age > 1.5) { scene.remove(b); b.geometry.dispose(); b.material.dispose(); burstParticles.splice(i,1); continue; }
+      const pos = b.geometry.attributes.position.array;
+      for (let j = 0; j < pos.length/3; j++) {
+        pos[j*3]   += b.userData.vx[j*3]   * 0.15;
+        pos[j*3+1] += b.userData.vx[j*3+1] * 0.15;
+        pos[j*3+2] += b.userData.vx[j*3+2] * 0.15;
+      }
+      b.geometry.attributes.position.needsUpdate = true;
+      b.material.opacity = Math.max(0, 1 - age / 1.5);
+    }
+
+    ren.render(scene,cam);
+
+    frames++;
+    const nowMs=performance.now();
+    if(nowMs-lastT>=1000){ if(fpsEl) fpsEl.innerText=frames.toFixed(1); frames=0; lastT=nowMs; }
+  }
+
+  // ── NODE CANVAS ────────────────────────────────
+  function initNodes(){
+    const cv=document.getElementById('node-canvas');
+    if(!cv) return;
+    const cx=cv.getContext('2d');
+    function resize(){ cv.width=cv.parentElement.clientWidth; cv.height=cv.parentElement.clientHeight; }
+    resize(); window.addEventListener('resize',resize);
+
+    const nodes=[
+      {name:'JAVA CORE',    desc:'Java, OOP, JVM, Java 8 Features — Streams, Lambdas, Collections Framework, multithreading and core language foundations.',  x:.18,y:.30,c:'#00ff88',grp:'backend' },
+      {name:'SPRING BOOT',  desc:'Spring Boot, Spring MVC, Spring Security — full Spring ecosystem.',                 x:.38,y:.22,c:'#00ff88',grp:'backend' },
+      {name:'REST API',     desc:'RESTful API design, endpoint architecture, HTTP standards & best practices.',       x:.56,y:.35,c:'#00d4ff',grp:'backend' },
+      {name:'MYSQL / JPA',  desc:'MySQL, H2 Database, Spring Data JPA, Hibernate ORM and query optimisation.',       x:.28,y:.62,c:'#a855f7',grp:'data'    },
+      {name:'LLMs / RAG',   desc:'Large Language Models, RAG pipelines, prompt engineering and AI integration.',     x:.72,y:.22,c:'#00d4ff',grp:'ai'      },
+      {name:'N8N AUTOMATION',desc:'n8n workflow automation, API integrations and intelligent task pipelines.',       x:.82,y:.58,c:'#f59e0b',grp:'automation'},
+      {name:'GCP / AWS',    desc:'Google Cloud Platform + AWS — deployment, storage and cloud infrastructure.',      x:.56,y:.74,c:'#f59e0b',grp:'cloud'   },
+      {name:'PYTHON / ML',  desc:'Python, NumPy, Pandas, Matplotlib and Machine Learning fundamentals.',            x:.83,y:.35,c:'#a855f7',grp:'ai'      },
+    ];
+    const edges=[[0,1],[0,3],[1,2],[1,3],[2,4],[2,5],[4,7],[5,6],[3,6],[6,7],[4,5]];
+    nodes.forEach((n,i)=>{ n.r=9; n.tr=9; n.pulse=i*0.7; });
+
+    let mouse={x:-999,y:-999};
+    cv.addEventListener('mousemove',e=>{
+      const rc=cv.getBoundingClientRect();
+      mouse.x=e.clientX-rc.left; mouse.y=e.clientY-rc.top;
+      nodes.forEach(n=>{
+        const d=Math.hypot(mouse.x-n.x*cv.width, mouse.y-n.y*cv.height);
+        if(d<22){ n.tr=17; document.getElementById('nd-title').innerText=n.grp.toUpperCase()+' // '+n.name; document.getElementById('nd-desc').innerText=n.desc; }
+        else n.tr=9;
+      });
+    });
+    cv.addEventListener('click',()=>beep(1200,.06));
+
+    function draw(){
+      cx.clearRect(0,0,cv.width,cv.height);
+      const W=cv.width,H=cv.height,now=Date.now()*.002;
+      edges.forEach(([a,b])=>{
+        cx.beginPath(); cx.moveTo(nodes[a].x*W,nodes[a].y*H); cx.lineTo(nodes[b].x*W,nodes[b].y*H);
+        cx.strokeStyle='rgba(0,255,136,.1)'; cx.lineWidth=1; cx.stroke();
+      });
+      nodes.forEach(n=>{
+        n.r+=(n.tr-n.r)*.12;
+        const nx=n.x*W, ny=n.y*H;
+        const pr=n.r+Math.sin(now+n.pulse)*3+3;
+        cx.beginPath(); cx.arc(nx,ny,pr,0,Math.PI*2);
+        cx.strokeStyle=n.c+'44'; cx.lineWidth=1; cx.stroke();
+        cx.beginPath(); cx.arc(nx,ny,n.r,0,Math.PI*2);
+        cx.fillStyle=n.c; cx.shadowColor=n.c; cx.shadowBlur=14; cx.fill(); cx.shadowBlur=0;
+        cx.fillStyle='#fff'; cx.font='bold 9px "JetBrains Mono"';
+        cx.fillText(n.name, nx+n.r+6, ny+3.5);
+      });
+      requestAnimationFrame(draw);
+    }
+    draw();
+  }
+
+  // ── SKILLS ─────────────────────────────────────
+  const skillData=[
+    {n:'Java & Spring Boot',        v:75,c:'#00ff88',ic:'fa-brands fa-java'          },
+    {n:'REST API Development',      v:72,c:'#00ff88',ic:'fa-solid fa-network-wired'  },
+    {n:'MySQL & JPA / Hibernate',   v:68,c:'#a855f7',ic:'fa-solid fa-database'       },
+    {n:'Maven & Swagger / OpenAPI', v:65,c:'#00ff88',ic:'fa-solid fa-cubes'          },
+    {n:'Python & Data Science',     v:60,c:'#00d4ff',ic:'fa-brands fa-python'        },
+    {n:'n8n Workflow Automation',   v:58,c:'#f59e0b',ic:'fa-solid fa-diagram-project'},
+    {n:'LLMs / RAG / Agentic AI',   v:55,c:'#00d4ff',ic:'fa-solid fa-robot'          },
+    {n:'Embeddings & Vector DBs',   v:48,c:'#00d4ff',ic:'fa-solid fa-layer-group'    },
+    {n:'GCP & AWS Cloud',           v:45,c:'#f59e0b',ic:'fa-solid fa-cloud'          },
+    {n:'Machine Learning',          v:42,c:'#a855f7',ic:'fa-solid fa-brain'          },
+  ];
+
+  function buildSkills(){
+    const el=document.getElementById('skill-list');
+    el.innerHTML=skillData.map(s=>`
+      <div>
+        <div class="flex justify-between items-center mb-1.5">
+          <span class="font-mono text-xs text-slate-300 flex items-center gap-2">
+            <i class="${s.ic} text-[10px]" style="color:${s.c}"></i>${s.n}
+          </span>
+          <span class="font-mono text-xs text-slate-500">${s.v}%</span>
+        </div>
+        <div class="skill-track">
+          <div class="skill-fill" data-w="${s.v}" style="background:linear-gradient(90deg,${s.c},${s.c}77)"></div>
+        </div>
+      </div>`).join('');
+  }
+  function animSkills(){
+    document.querySelectorAll('.skill-fill').forEach(b=>{ b.style.width=b.dataset.w+'%'; });
+  }
+
+  // ── ACTIVE NAV via IntersectionObserver ─────────
+  function setupActiveNav(){
+    const sections = document.querySelectorAll('main section[id]');
+    const navBtns = document.querySelectorAll('.nav-btn');
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          navBtns.forEach(b => b.classList.remove('active'));
+          const active = document.querySelector(`.nav-btn[data-section="${entry.target.id}"]`);
+          if (active) active.classList.add('active');
+        }
+      });
+    }, { threshold: 0.4 });
+    sections.forEach(s => obs.observe(s));
+  }
+
+  function setupSkillsIO(){
+    const obs=new IntersectionObserver(entries=>{
+      if(entries[0].isIntersecting){ setTimeout(animSkills,200); obs.disconnect(); }
+    },{threshold:.3});
+    const el=document.getElementById('skill-list');
+    if(el) obs.observe(el);
+  }
+
+  // ── NAV / MODAL ────────────────────────────────
+  function goto(id){ beep(900,.05); document.getElementById(id)?.scrollIntoView({behavior:'smooth'}); }
+  function openModal(id){ beep(1000,.05); const m=document.getElementById(id); m.classList.remove('opacity-0','pointer-events-none'); }
+  function closeModal(id){ beep(400,.05); const m=document.getElementById(id); m.classList.add('opacity-0','pointer-events-none'); }
+  function handleContact(e){ e.preventDefault(); beep(1400,.1); document.getElementById('contact-ok').classList.remove('hidden'); e.target.reset(); }
+
+  // ── SLIDERS ────────────────────────────────────
+  document.getElementById('p-slider').addEventListener('input',e=>{
+    const v=parseInt(e.target.value);
+    document.getElementById('density-lbl').innerText=v.toLocaleString()+' nodes';
+    mkParticles(v); beep(600,.03);
+  });
+  document.getElementById('s-slider').addEventListener('input',e=>{
+    const v=parseFloat(e.target.value);
+    document.getElementById('speed-lbl').innerText=v.toFixed(1)+'×';
+    orbitMul=v; beep(700,.03);
+  });
+
+  // ── INIT ───────────────────────────────────────
+  window.onload=function(){
+    animate();
+    initNodes();
+    buildSkills();
+    setupSkillsIO();
+    setupActiveNav();
+  };
+  </script>
+</body>
+</html>
